@@ -1,13 +1,18 @@
-\documentclass[a4paper,12pt,titlepage]{report}
+\documentclass[a4paper,12pt,titlepage]{article}
 
 \usepackage{hyperref}
 \usepackage{fullpage}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage[acronym,nomain]{glossaries}
 \usepackage[tablegrid]{vhistory}
 
-\title{Enterprise Messaging, and the Internet of Things}
-\author{George Vanburgh}
+\makeglossaries
+
+\title{Adaptive Application Messaging}
+\author{George Vanburgh\\
+        BSc Computer Science with Industrial Experience\\
+        Supervised by Alvaro A.A. Fernandes}
 \date{Draft \today}
 
 % Number subsubsections
@@ -15,10 +20,12 @@
 
 \begin{document}
 
+  \input{acronyms.tex}
+
   \maketitle
 
   \begin{abstract}
-    This is my abstract. There are many like it, but this is mine.
+
   \end{abstract}
 
   \tableofcontents
@@ -26,5 +33,9 @@
     \vhEntry{0.1}{05.10.15}{GV}{Creation}
   \end{versionhistory}
   \newpage
+
+  \input{introduction.tex}
+
+  \printglossaries
 
 \end{document}
