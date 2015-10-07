@@ -1,4 +1,5 @@
-# Compiling
+Compiling
+=========
 
     pdflatex -shell-escape report.tex
     makeglossaries report
