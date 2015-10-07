@@ -4,9 +4,11 @@
 \usepackage{fullpage}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage[backend=bibtex]{biblatex}
 \usepackage[acronym,nomain]{glossaries}
 \usepackage[tablegrid]{vhistory}
 
+\bibliography{report}
 \makeglossaries
 
 \title{Adaptive Application Messaging}
@@ -25,7 +27,14 @@
   \maketitle
 
   \begin{abstract}
+    An exercise in building an application messaging broker, capable of operating
+    in a wide variety of challenging network environments.
+  \end{abstract}
 
+  \renewcommand{\abstractname}{Acknowledgements}
+  \begin{abstract}
+   Many thanks to my supervisor, Alvaro Fernandes, for his continuous support,
+   guidance and patience - without which, this project would have been impossible.
   \end{abstract}
 
   \tableofcontents
@@ -36,6 +45,13 @@
 
   \input{introduction.tex}
 
+  \newpage
+
   \printglossaries
+
+  \newpage
+
+
+  \printbibliography
 
 \end{document}

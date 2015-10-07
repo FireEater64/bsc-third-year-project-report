@@ -1,0 +1,6 @@
+#Compiling
+
+    pdflatex -shell-escape report.tex
+    makeglossaries report
+    bibtex8 --wolfgang report
+    pdflatex -shell-escape report.tex
