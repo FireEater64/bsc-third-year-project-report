@@ -1,0 +1,99 @@
+\section{Design}
+\label{sec:Design}
+
+\subsection{SLA/QoS Specification}
+\label{sub:SLA/QoS Specification}
+
+One of the main goals of this project, was to produce a single message broker that
+is capable of living up to multiple different \glspl{sla}, depending on what was
+requested by the user/the current state of the network. These SLAs can be divided
+into multiple catagories:
+
+\subsubsection{Failure Handling}
+\label{subs:Failure Handling}
+
+The issue with gracefully handling communications failure in distributed systems
+was illustrated in a 1988 paper by Xerox employees
+Andrew Birrell and Bruce Nelson\cite{Birrell:1988:IRP:59309.59336}. They identified
+three different semantics with which \glspl{rpc} could be executed:
+
+\begin{description}
+  \item[Exactly once] \hfill \\
+    The ideal scenario is one in which messages are passed to their destination
+    once, and exactly once. Typically, when failure does not occur during a
+    message transfer this is trivial to assert - simply receiving an acknowledgement
+    from the recipient of the message confirms this to be the case.
+    Unfortunatly, the same cannot be said when a response is not received from
+    the recipient, for whatever reason (link failure/machine failure etc.).
+    This is a typical illustration of the
+    'Two Generals Problem'\cite{Gray:1978:NDB:647433.723863} - and is extremely
+    difficult to guard against. As a result - most messaging systems adopt one
+    of the following behavioural models in the event of failure.
+  \item[At most once] \hfill \\
+    In the event that a message is lost without acknowledgement - no attempt is made
+    to redeliver the message. This is used in situations where duplicated messages
+    pose a risk to overall system integrity - for example in most financial systems.
+  \item[At least once] \hfill \\
+    In the event that a message is lost without acknowledgement, attempts to
+    redeliver the message continue until successful receipt is acknowledged.
+    This is typically used in situations where message delivery is deemed more
+    important than message uniqueness/ordering. For example, if the unacknowledged
+    message is intended to trigger a cache refresh in the recipient system - the
+    fact that the refresh may occur multiple times may be insignificant next to
+    the risk that the refresh does not happen at all.
+\end{description}
+
+\subsubsection{Network Bandwidth Utilization}
+\label{subs:Network Bandwidth Utilization}
+
+In many situations (and in \gls{iot} devices in particular) network bandwidth is
+a limiting resource. Message compression can be used in certain situations to
+reduce overall bandwidth utlisation of the broker - at the cost of increased
+computational load on both the broker and consumer.
+
+\subsubsection{Network latency}
+\label{subs:Network latency}
+
+Devices experiencing high degrees of network latency can have tremendous impact
+on the overall \gls{rtt} of a given message. This can be compensated for through
+intelligent packet stuffing (such as Nagel's altgorithm)/jumbo frames (if supported)
+by the network - all of which reduce the amount of overhead experienced by each
+message.
+
+\subsubsection{Network packet loss}
+\label{subs:Network packet loss}
+
+On networks experiencing a high rate of packet loss - error correcting protocols
+like TCP can help ensure packet delivery at the IP layer. Additionally,
+checksumming the messages can help guard against message corruption through lost
+packets.
+
+\subsubsection{Message power cost}
+\label{subs:Message power cost}
+
+Especially relevant for \gls{iot} and low-power devices - the amount of power
+consumed whilst exchanging messages (which is directly linked to the number of
+CPU cycles required to transmit/receive each message) can be an important
+consideration when designing an applications. Message attributes which can
+affect this include:
+
+\begin{itemize}
+  \item Message compression
+  \item Message size
+  \item IP Protocol
+  \item Network conditions (requiring retransmits/computing checksums etc.)
+\end{itemize}
+
+\subsubsection{Message throughput}
+\label{subs:Message throughput}
+
+Finally - the most obvious performance metric of a broker - the number of messages
+it can process per second. This is impacted by all of the above requirements,
+and can be maximised through the use of small, cheap messages, with as little
+overhead as possible. Network protocol can make a large difference here - with
+something like UDP being extremely cheap to send over the wire
+(if inherintly unreliable).
+
+The above axioms make an interesting optimisation problem. The 'optimal' combination
+of protocol and broker algorithm varies dramatically depending on the developer
+requirements, as well as the operating environment of the broker/endpoints.
