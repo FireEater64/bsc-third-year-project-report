@@ -97,3 +97,44 @@ something like UDP being extremely cheap to send over the wire
 The above axioms make an interesting optimisation problem. The 'optimal' combination
 of protocol and broker algorithm varies dramatically depending on the developer
 requirements, as well as the operating environment of the broker/endpoints.
+
+\subsection{Presentation interface}
+\label{sub:Presentation interface}
+
+As a (primarily) middleware project - coming up with a compelling presentation
+format is crucial. Broker metrics such as:
+
+\begin{itemize}
+  \item Messages/second (broken down by topic)
+  \item (Average) End-to-end latency for each message)
+  \item Memory/Disk usage
+  \item CPU utilisation
+  \item Pending messages
+  \item Unacknowledged messages
+  \item Total messages processed
+\end{itemize}
+
+And client metrics such as:
+
+\begin{itemize}
+  \item Messages sent
+  \item Messages received
+  \item Messages lost
+\end{itemize}
+
+Should be easily accessible, and visualised (using something like Grafana.
+
+\subsection{Configuration interface}
+\label{sub:Configuration interface}
+
+As well as file-based configuration, a command line administration interface
+should also be present. This should be able to change things like:
+
+\begin{itemize}
+  \item The listening port
+  \item The amount of disk-based storage to use
+  \item The maximum memory allocation for the broker
+\end{itemize}
+
+This could be the same interface as the \ref{sub:Presentation interface},
+or different.
