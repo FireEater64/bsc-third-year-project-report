@@ -1,0 +1,15 @@
+\begin{tikzpicture}[thick]
+  \node(A) [draw,rectangle,minimum width=1cm,minimum height=1cm]{A};
+
+  \begin{scope}[xshift=3cm]
+    \node(Broker) [draw,rectangle,minimum width=2cm,minimum height=1cm]{Broker};
+  \end{scope}
+
+  \begin{scope}[xshift=6cm]
+    \node(B) [draw,rectangle,minimum width=1cm,minimum height=1cm]{B};
+    \node(Cross) [draw,cross out,minimum width=1cm,minimum height=1cm]{};
+  \end{scope}
+
+  \draw[->] (A) edge (Broker)
+            (Broker) edge (B);
+\end{tikzpicture}

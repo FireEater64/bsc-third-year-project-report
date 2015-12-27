@@ -1,0 +1,9 @@
+\begin{tikzpicture}[thick]
+  \node(A) [draw,rectangle,minimum width=1cm,minimum height=1cm]{A};
+
+  \begin{scope}[xshift=6cm]
+    \node(B) [draw,rectangle,minimum width=1cm,minimum height=1cm]{B};
+  \end{scope}
+
+  \draw[->] (A) edge (B);
+\end{tikzpicture}
