@@ -1,2 +1,38 @@
 \section{Background}
 \label{sec:Background}
+
+\subsection{What is a 'message'?}
+\label{sub:What is a 'message'?}
+
+In todays interconnected world, computer programs rarely exist in a vacuum.
+Rather, they form one small part of a much larger \gls{soa} -
+consisting of multiple services, jobs and scripts, all exchanging information in
+the form of messages. These messages may adhere to a standard data-interchange
+format (for example, \gls{json}). They may correspond to an agreed upon
+specification (for example, \href{https://goo.gl/rjuP4C}{IEEE 1671-2010}).
+Or they may simply be blobs of binary information transmitted over the network -
+completely subject to the interpretation of the sender and received.
+At a fundamental level, though, a message is simply a collection of bytes, to be
+transmitted from point A, to point B.
+
+\subsection{What is a message broker?}
+\label{sub:What is a message broker?}
+
+\begin{figure}
+  \input{figures/directMessaging}
+  \caption{Two services, A and B, directly exchanging messages}
+  \label{fig:tikz:directMessaging}
+\end{figure}
+
+To understand the role message brokers typically play in \glspl{soa}, we first
+examine the simplest method of transmitting bytes between two applications -
+directly transmitting messages between two applications (shown in
+Figure~\ref{fig:tikz:directMessaging} ).
+
+In this example, the application 'A' wishes to transmit a simple message
+(a sequence of bytes) to application 'B', and does so in the simplest method
+possible. This could involve making an \gls{rpc}, opening a Unix/\gls{tcp} socket,
+or making a HTTP web request - for the purposes of this illustration the exact
+mechanism by which bytes are transferred is unimportant, the fact
+that the transfer takes place \emph{directly} between the two parties is all that
+matters.
