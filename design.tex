@@ -1,6 +1,11 @@
 \section{Design}
 \label{sec:Design}
 
+\subsection{Project philosophy}
+\label{sub:Project philosophy}
+
+Brief overview of the open development mentiality.
+
 \subsection{SLA/QoS Specification}
 \label{sub:SLA/QoS Specification}
 
@@ -106,7 +111,7 @@ format is crucial. Broker metrics such as:
 
 \begin{itemize}
   \item Messages/second (broken down by topic)
-  \item (Average) End-to-end latency for each message)
+  \item (Average) End-to-end latency for each message
   \item Memory/Disk usage
   \item CPU utilisation
   \item Pending messages
@@ -122,7 +127,7 @@ And client metrics such as:
   \item Messages lost
 \end{itemize}
 
-Should be easily accessible, and visualised (using something like Grafana.
+Should be easily accessible, and visualised.
 
 \subsection{Configuration interface}
 \label{sub:Configuration interface}
@@ -136,5 +141,20 @@ should also be present. This should be able to change things like:
   \item The maximum memory allocation for the broker
 \end{itemize}
 
-This could be the same interface as the \ref{sub:Presentation interface},
-or different.
+This could be the same interface as the presentation interface
+(section~\ref{sub:Presentation interface}), or different.
+
+\subsection{GoLang}
+\label{sub:GoLang}
+
+\subsubsection{What is GoLang?}
+\label{subs:What is GoLang?}
+
+\subsubsection{Concurrency vs Parallelism}
+\label{subs:Concurrency vs Parallism}
+
+\subsubsection{Why do we need concurrency?}
+\label{subs:Why do we need parallism}
+
+\subsubsection{Concurrency in GoLang}
+\label{subs:Concurrency in GoLang}

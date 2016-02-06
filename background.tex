@@ -1,8 +1,8 @@
 \section{Background}
 \label{sec:Background}
 
-\subsection{What is a 'message'?}
-\label{sub:What is a 'message'?}
+\subsection{Messages}
+\label{sub:Messages}
 
 In todays interconnected world, computer programs rarely exist in a vacuum.
 Rather, they form one small part of a much larger \gls{soa} -
@@ -15,10 +15,10 @@ completely subject to the interpretation of the sender and received.
 At a fundamental level, though, a message is simply a collection of bytes, to be
 transmitted from point A, to point B.
 
-\subsection{What is a message broker?}
+\subsection{Message Brokers}
 \label{sub:What is a message broker?}
 
-\begin{figure}
+\begin{figure}[ht]
   \centering
   \input{figures/directMessaging}
   \caption{Two services, A and B, directly exchanging messages}
@@ -37,3 +37,32 @@ or making a HTTP web request - for the purposes of this illustration the exact
 mechanism by which bytes are transferred is unimportant, the fact
 that the transfer takes place \emph{directly} between the two parties is all that
 matters.
+
+\subsubsection{Queues}
+\label{subs:Queues}
+
+Brief overview of the features/operation of a queue, in relation to a message broker.
+
+
+\subsubsection{Topics}
+\label{subs:Topics}
+
+Brief overview of the features/operation of a topic, in relation to a message broker.
+
+\subsubsection{Existing Brokers}
+\label{subs:Existing Brokers}
+
+Brief overview and comparison between some existing commercial/open-source
+implementations, and their features.
+
+\subsection{Goals}
+ In (very) broad strokes, my project has the following goals:
+
+ \begin{itemize}
+   \item Evaluate the impact and usefulness of GoLangs concurrency primatives in
+   constructing and testing a highly performant piece of software.
+   \item Evaluate the effort and time required to construct infrastructure
+   software comparable in functionality to existing commercial solutions.
+   \item Explore novel methods of increasing the performance of message passing,
+   in different environments.
+ \end{itemize}
