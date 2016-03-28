@@ -1,0 +1,3 @@
+[submodule "gamq"]
+	path = gamq
+	url = git@github.com:FireEater64/gamq.git
