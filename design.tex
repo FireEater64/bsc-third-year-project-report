@@ -4,7 +4,7 @@
 \subsection{Project philosophy}
 \label{sub:Project philosophy}
 
-Brief overview of the open development mentiality.
+Brief overview of the open development mentality ().
 
 \subsection{SLA/QoS Specification}
 \label{sub:SLA/QoS Specification}
@@ -12,7 +12,7 @@ Brief overview of the open development mentiality.
 One of the main goals of this project, was to produce a single message broker that
 is capable of living up to multiple different \glspl{sla}, depending on what was
 requested by the user/the current state of the network. These SLAs can be divided
-into multiple catagories:
+into multiple categories:
 
 \subsubsection{Failure Handling}
 \label{subs:Failure Handling}
@@ -28,7 +28,7 @@ three different semantics with which \glspl{rpc} could be executed:
     once, and exactly once. Typically, when failure does not occur during a
     message transfer this is trivial to assert - simply receiving an acknowledgement
     from the recipient of the message confirms this to be the case.
-    Unfortunatly, the same cannot be said when a response is not received from
+    Unfortunately, the same cannot be said when a response is not received from
     the recipient, for whatever reason (link failure/machine failure etc.).
     This is a typical illustration of the
     'Two Generals Problem'\cite{Gray:1978:NDB:647433.723863} - and is extremely
@@ -53,7 +53,7 @@ three different semantics with which \glspl{rpc} could be executed:
 
 In many situations (and in \gls{iot} devices in particular) network bandwidth is
 a limiting resource. Message compression can be used in certain situations to
-reduce overall bandwidth utlisation of the broker - at the cost of increased
+reduce overall bandwidth utilization of the broker - at the cost of increased
 computational load on both the broker and consumer.
 
 \subsubsection{Network latency}
@@ -61,7 +61,7 @@ computational load on both the broker and consumer.
 
 Devices experiencing high degrees of network latency can have tremendous impact
 on the overall \gls{rtt} of a given message. This can be compensated for through
-intelligent packet stuffing (such as Nagel's altgorithm)/jumbo frames (if supported)
+intelligent packet stuffing (such as Nagel's algorithm)/jumbo frames (if supported)
 by the network - all of which reduce the amount of overhead experienced by each
 message.
 
@@ -70,7 +70,7 @@ message.
 
 On networks experiencing a high rate of packet loss - error correcting protocols
 like TCP can help ensure packet delivery at the IP layer. Additionally,
-checksumming the messages can help guard against message corruption through lost
+check-summing the messages can help guard against message corruption through lost
 packets.
 
 \subsubsection{Message power cost}
@@ -86,7 +86,7 @@ affect this include:
   \item Message compression
   \item Message size
   \item IP Protocol
-  \item Network conditions (requiring retransmits/computing checksums etc.)
+  \item Network conditions (requiring re-transmits/computing checksums etc.)
 \end{itemize}
 
 \subsubsection{Message throughput}
@@ -94,12 +94,12 @@ affect this include:
 
 Finally - the most obvious performance metric of a broker - the number of messages
 it can process per second. This is impacted by all of the above requirements,
-and can be maximised through the use of small, cheap messages, with as little
+and can be maximized through the use of small, cheap messages, with as little
 overhead as possible. Network protocol can make a large difference here - with
 something like UDP being extremely cheap to send over the wire
-(if inherintly unreliable).
+(if inherently unreliable).
 
-The above axioms make an interesting optimisation problem. The 'optimal' combination
+The above axioms make an interesting optimization problem. The 'optimal' combination
 of protocol and broker algorithm varies dramatically depending on the developer
 requirements, as well as the operating environment of the broker/endpoints.
 
@@ -113,7 +113,7 @@ format is crucial. Broker metrics such as:
   \item Messages/second (broken down by topic)
   \item (Average) End-to-end latency for each message
   \item Memory/Disk usage
-  \item CPU utilisation
+  \item CPU utilization
   \item Pending messages
   \item Unacknowledged messages
   \item Total messages processed
@@ -127,34 +127,58 @@ And client metrics such as:
   \item Messages lost
 \end{itemize}
 
-Should be easily accessible, and visualised.
+Should be easily accessible, and visualized.
 
-\subsection{Configuration interface}
-\label{sub:Configuration interface}
+\subsection{Configuration}
+\label{sub:Configuration}
 
-As well as file-based configuration, a command line administration interface
-should also be present. This should be able to change things like:
+As with most pieces of software - there are situations where the default behavior of a message broker requires adjustment to suit its operating environment. One example of this is the network port that the broker operates on, and which other applications will connect to in order to exchange messages. Whilst the default port (48879\footnote{A number chosen due to its memorable hexadecimal representation: \texttt{0xBEEF}} in the case of this broker) may be suitable in most cases, since no other 'well-known' applications use that particular port.\footnote{\url{https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers}}.
 
-\begin{itemize}
-  \item The listening port
-  \item The amount of disk-based storage to use
-  \item The maximum memory allocation for the broker
-\end{itemize}
+\subsubsection{Command-line configuration}
+\label{subs:Command-line configuration}
 
-This could be the same interface as the presentation interface
-(section~\ref{sub:Presentation interface}), or different.
+A number of these configurable parameters make sense to expose as command-line parameters, specified at application start time. The available parameters can be exposed using the \texttt{--help} parameter, the output of which can be seen in Listing~\ref{lst:gamqHelpOutput}
+
+\begin{listing}[ht]
+  \centering
+  \inputminted{bash}{code/gamqHelpOutput}
+  \caption{Output of running the broker with the --help flag}
+  \label{lst:gamqHelpOutput}
+\end{listing}
+
+\subsubsection{File-based configuration}
+\label{subs:File-based configuration}
+
+Whilst specifying arguments on the command line gives flexibility, there are certain options that, whilst configurable, are either too numerous, or change too infrequently to justify command-line flags. One major example of this is the log configuration for the broker - specifying the format, and location of messages logged using the \href{https://github.com/cihub/seelog}{Seelog} library. An example log configuration can be seen in Listing~\ref{lst:seelogConfig}.
+
+\begin{listing}[ht]
+  \centering
+  \inputminted{xml}{code/gamq/config/logconfig.xml}
+  \caption{Example Seelog configuration file for gamq.}
+  \label{lst:seelogConfig}
+\end{listing}
 
 \subsection{GoLang}
 \label{sub:GoLang}
 
+\todo[inline]{Overview of GoLang}
+
 \subsubsection{What is GoLang?}
 \label{subs:What is GoLang?}
+
+\todo[inline]{History/Purpose/Development}
 
 \subsubsection{Concurrency vs Parallelism}
 \label{subs:Concurrency vs Parallism}
 
+\todo[inline]{Async IO vs multiple threads}
+
 \subsubsection{Why do we need concurrency?}
 \label{subs:Why do we need parallism}
 
+\todo[inline]{Message broker functions - blocking vs non-blocking IO}
+
 \subsubsection{Concurrency in GoLang}
 \label{subs:Concurrency in GoLang}
+
+\todo[inline]{GoRoutines/Channels etc.}
