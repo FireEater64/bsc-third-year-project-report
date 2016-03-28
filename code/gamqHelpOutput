@@ -1,0 +1,8 @@
+$ ./gamq --help
+Usage of ./gamq:
+ -port int
+     The port to listen on (default 48879)
+ -profile
+     Produce a pprof file
+ -statsd string
+     The StatsD endpoint to send metrics to

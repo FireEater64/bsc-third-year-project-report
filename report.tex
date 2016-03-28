@@ -4,11 +4,16 @@
 \usepackage{fullpage}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{minted}
+\usepackage{todonotes}
 \usepackage[backend=bibtex]{biblatex}
 \usepackage[acronym,nomain]{glossaries}
 \usepackage[tablegrid]{vhistory}
 \usepackage{tikz}
 \usetikzlibrary{shapes, positioning}
+
+\RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
+\renewcommand{\figurename}{Listing}
 
 \bibliography{report}
 \makeglossaries
@@ -62,7 +67,6 @@
   \printglossaries
 
   \newpage
-
 
   \printbibliography
 
