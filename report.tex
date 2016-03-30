@@ -6,6 +6,7 @@
 \usepackage{subcaption}
 \usepackage{minted}
 \usepackage{todonotes}
+% \usepackage{svg}
 \usepackage[backend=bibtex]{biblatex}
 \usepackage[acronym,nomain]{glossaries}
 \usepackage[tablegrid]{vhistory}
@@ -18,11 +19,11 @@
 \bibliography{report}
 \makeglossaries
 
-\title{Adaptive Application Messaging}
-\author{George Vanburgh\\
-        BSc Computer Science with Industrial Experience\\
-        Supervised by Alvaro A.A. Fernandes}
-\date{Draft \today}
+% \title{Adaptive Application Messaging}
+% \author{George Vanburgh\\
+%         BSc Computer Science with Industrial Experience\\
+%         Supervised by Alvaro A.A. Fernandes}
+% \date{Draft \today}
 
 % Number subsubsections
 \setcounter{secnumdepth}{3}
@@ -31,7 +32,36 @@
 
   \input{acronyms.tex}
 
-  \maketitle
+  \begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+
+        \Huge
+        \textbf{Writing a Message Broker in GoLang}
+
+        \vspace{2.0cm}
+        \LARGE
+
+        \textbf{George Vanburgh}
+
+        \vspace{0.5cm}
+        Supervised by Alvaro A.A. Fernandes
+
+        \vspace{0.5cm}
+        Draft \today
+
+        \vfill
+
+        \includegraphics[width=0.4\textwidth]{figures/manchester}
+
+        \vspace{0.8cm}
+        \large
+
+        A report submitted in part fulfilment of the degree of \\
+        \textbf{BSc (Hons) in Computer Science with Industrial Experience}
+
+    \end{center}
+  \end{titlepage}
 
   \begin{abstract}
     An exercise in building an application messaging broker, capable of operating
