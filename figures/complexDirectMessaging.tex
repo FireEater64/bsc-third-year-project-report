@@ -1,0 +1,15 @@
+\begin{tikzpicture}[thick]
+
+  % Draw nodes
+  \foreach \t [count=\a] in {A,B,C,D,E,F,G,H,I,J}{
+    \draw (\a*360/10: 4cm) node(\t)[draw,rectangle,minimum width=1cm,minimum height=1cm]{\t};
+    }
+
+  % Draw connections
+  \foreach \t [count=\a] in {A,B,C,D,E,F,G,H,I,J}{
+    \foreach \u [count=\b] in {A,B,C,D,E,F,G,H,I,J}{
+      \ifthenelse{\NOT \a=\b}{\draw[->] (\t) edge (\u)}{};
+      }
+    }
+
+\end{tikzpicture}

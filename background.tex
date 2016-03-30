@@ -38,6 +38,20 @@ exact mechanism by which bytes are transferred is unimportant, the fact that the
 transfer takes place \emph{directly} between the two parties is all that
 matters.
 
+\begin{figure}[ht]
+  \centering
+  \input{figures/complexDirectMessaging}
+  \caption{Ten services directly exchanging messages}
+  \label{fig:tikz:directMessaging}
+\end{figure}
+
+This is a perfectly acceptable method of exchanging information between two services at a small scale. However (and perhaps unfortunately), systems rarely exist in pairs. One of the biggest issues with simple application-to-application messaging is demonstrated in Figure~\ref{fig:tikz:complexDirectMessaging} - as more nodes are added, the complexity of using direct connections increases exponentially\footnote{Assuming each service needs to talk to all other services}. Managing this complexity is difficult in a number of ways:
+
+\begin{description}
+  \item[Service discovery] Firstly, each program requires some mechanism of discovering an endpoint for all the other services it wishes to communicate with. Typically, this is either provided via configuration shipped with the program, or is available from some central repository. There are also, however, problems involved with keeping this information up to date - as the services with which a client machine communicates may not always be available on the same endpoints all of the time (Possibly due to dynamic network configuration via DHCP, or the migration of a service between servers).
+  \item[Number of connections] As the number of services a program communicates with increases, so do the number of connections said program is required to maintain. This could be a non-issue if a connectionless protocol such as UDP (which has the distinct disadvantage of not having any deliverability guarentees). However, if a connection-oriented protocol such as TCP is used, there can be significant overhead associated with maintaining large numbers of connections.\todo{Do we need a section on TCP/UDP?}
+\end{description}
+
 \subsection{Queues}
 \label{sub:Queues}
 
