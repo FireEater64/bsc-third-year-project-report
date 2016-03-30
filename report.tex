@@ -1,12 +1,13 @@
 \documentclass[a4paper,12pt,titlepage]{article}
 
+\usepackage[toc,page]{appendix}
 \usepackage[hidelinks]{hyperref}
 \usepackage{fullpage}
 \usepackage{caption}
+\usepackage{pgfgantt}
 \usepackage{subcaption}
 \usepackage{minted}
 \usepackage{todonotes}
-% \usepackage{svg}
 \usepackage[backend=bibtex]{biblatex}
 \usepackage[acronym,nomain]{glossaries}
 \usepackage[tablegrid]{vhistory}
@@ -18,12 +19,6 @@
 
 \bibliography{report}
 \makeglossaries
-
-% \title{Adaptive Application Messaging}
-% \author{George Vanburgh\\
-%         BSc Computer Science with Industrial Experience\\
-%         Supervised by Alvaro A.A. Fernandes}
-% \date{Draft \today}
 
 % Number subsubsections
 \setcounter{secnumdepth}{3}
@@ -64,8 +59,7 @@
   \end{titlepage}
 
   \begin{abstract}
-    An exercise in building an application messaging broker, capable of operating
-    in a wide variety of challenging network environments.
+    \input{abstract.tex}
   \end{abstract}
 
   \renewcommand{\abstractname}{Acknowledgements}
@@ -77,6 +71,7 @@
     \vhEntry{0.1}{05.10.15}{GV}{Creation}
     \vhEntry{0.2}{12.10.15}{GV}{Initial background section}
     \vhEntry{0.3}{06.02.16}{GV}{Basic report structure}
+    \vhEntry{0.4}{30.03.16}{GV}{New title page, and stubbed out sections}
   \end{versionhistory}
   \newpage
 
@@ -91,6 +86,10 @@
   \input{testing.tex}
 
   \input{conclusion.tex}
+
+  \begin{appendix}
+    \input{appendix.tex}
+  \end{appendix}
 
   \newpage
 

@@ -5,27 +5,39 @@
 \label{sub:Background}
 
 Many large, distributed applications (particularly in 'enterprise' environments)
-make extensive use of messaging brokers -
-software (or hardware in some cases\cite{solaceappliances}) responsible for passing
-layer-7 messages between services, over the network. Two examples of message
-brokers are
+make extensive use of messaging brokers - software\footnote{Or hardware in some
+cases\cite{solaceappliances}} responsible for passing layer-7 messages between
+services, over the network. Two examples of message brokers are
 \href{http://www.tibco.com/products/automation/enterprise-messaging/enterprise-message-service}{TibcoEMS}
-and \href{https://www.rabbitmq.com/}{RabbitMQ}.
+and \href{https://www.rabbitmq.com/}{RabbitMQ}. These brokers improve the
+software development experience for engineers working on distributed
+applications, by abstracting away the complexities involved with passing
+messages between software running on distributed, heterogeneous hardware - which
+may be seperated by networks operated by multiple different administrators, and
+with less-than-perfect
+qualities.\footnote{\url{https://blogs.oracle.com/jag/resource/Fallacies.html}}. These broker benefits are explored in-depth in Section~\ref{sub:brokers}.
 
-\subsection{Overview}
-\label{sub:Overview}
+\href{https://golang.org/}{GoLang} is a modern, cross-platform, open-source
+programming language initially developed by Google, and designed primarily for
+systems programming, with a focus on writing performant, network-oriented
+software, such as \href{https://github.com/kubernetes/kubernetes}{service
+cluster managers}, \href{https://github.com/mholt/caddy}{web-servers} and
+\href{https://github.com/grafana/grafana}{monitoring software}\footnote{Grafana
+is used to provide monitoring and dashboarding for this project - see
+Section~\ref{sub:presentation}}. More information on GoLang can be found in
+Section~\ref{sub:GoLang}
 
+\subsection{Goals}
 This project centers around building an enterprise-style messaging broker,
-as an exercise in understanding the various challenges associated with middleware
-communications under various networking conditions. These conditions are
-representative of the various different environments an application is expected
-to operate in. For example, an Internet of Things device that wishes to send information back
-to a cloud-based data collector - has a fundamentally different set of priorities
-to a server exchanging messages within a local datacenter, say as part of a large
-financial application. For example - an \gls{iot} device may
-have constrains placed on its battery life - meaning that reducing the amount of
-energy consumed in sending each message would take precedence over the
-requirement to, say, deliver messages in order. The project will center around
-designing and implementing various 'strategies' for meeting the kinds of SLA
-found in these discreet environment - and evaluating the performance of each
-strategy under various different workloads and scenarios.
+as an exercise in designing network-oriented distributed applications using a modern, novel programming language (GoLang), whilst following software design, test and architecture best practices - such as unit-testing, continuous integration, and built-in monitoring.
+
+In (very) broad strokes, my project has the following goals:
+
+ \begin{itemize}
+   \item Evaluate the impact and usefulness of GoLangs concurrency primitives in
+   constructing and testing a highly performant piece of software.
+   \item Design and build a high-performance, well-tested, stable message broker
+   in GoLang.
+   \item Evaluate the performance and feature-set of my implementation in
+   comparison with popular open-source alternatives.
+ \end{itemize}
