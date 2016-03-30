@@ -1,8 +1,8 @@
-\section{Background}
-\label{sec:Background}
+\chapter{Background}
+\label{chap:Background}
 
-\subsection{Messages}
-\label{sub:Messages}
+\section{Messages}
+\label{sec:Messages}
 
 In today's interconnected world, computer programs rarely exist in a vacuum.
 Rather, they form one small part of a much larger \gls{soa} -
@@ -15,8 +15,8 @@ completely subject to the interpretation of the sender and received.
 At a fundamental level, though, a message is simply a collection of bytes, to be
 transmitted from point A, to point B.
 
-\subsection{Message Brokers}
-\label{sub:brokers}
+\section{Message Brokers}
+\label{sec:brokers}
 
 \begin{figure}[ht]
   \centering
@@ -38,31 +38,31 @@ exact mechanism by which bytes are transferred is unimportant, the fact that the
 transfer takes place \emph{directly} between the two parties is all that
 matters.
 
-\subsubsection{Queues}
-\label{subs:Queues}
+\subsection{Queues}
+\label{sub:Queues}
 
 Brief overview of the features/operation of a queue, in relation to a message broker.
 
 
-\subsubsection{Topics}
-\label{subs:Topics}
+\subsection{Topics}
+\label{sub:Topics}
 
 Brief overview of the features/operation of a topic, in relation to a message broker.
 
-\subsubsection{Existing Brokers}
-\label{subs:Existing Brokers}
+\subsection{Existing Brokers}
+\label{sub:Existing Brokers}
 
 Brief overview and comparison between some existing commercial/open-source
 implementations, and their features.
 
 
-\subsection{Project Requirements}
-\label{sub:SLA/QoS Specification}
+\section{Project Requirements}
+\label{sec:SLA/QoS Specification}
 
 A message-broker is rather an unusual piece of software, due to the fact that is has very few functional requirements.
 
-\subsubsection{Failure Handling}
-\label{subs:Failure Handling}
+\subsection{Failure Handling}
+\label{sub:Failure Handling}
 
 The issue with gracefully handling communications failure in distributed systems
 was illustrated in a 1988 paper by Xerox employees
@@ -95,16 +95,16 @@ three different semantics with which \glspl{rpc} could be executed:
     the risk that the refresh does not happen at all.
 \end{description}
 
-\subsubsection{Network Bandwidth Utilization}
-\label{subs:Network Bandwidth Utilization}
+\subsection{Network Bandwidth Utilization}
+\label{sub:Network Bandwidth Utilization}
 
 In many situations (and in \gls{iot} devices in particular) network bandwidth is
 a limiting resource. Message compression can be used in certain situations to
 reduce overall bandwidth utilization of the broker - at the cost of increased
 computational load on both the broker and consumer.
 
-\subsubsection{Network latency}
-\label{subs:Network latency}
+\subsection{Network latency}
+\label{sub:Network latency}
 
 Devices experiencing high degrees of network latency can have tremendous impact
 on the overall \gls{rtt} of a given message. This can be compensated for through
@@ -112,16 +112,16 @@ intelligent packet stuffing (such as Nagel's algorithm)/jumbo frames (if support
 by the network - all of which reduce the amount of overhead experienced by each
 message.
 
-\subsubsection{Network packet loss}
-\label{subs:Network packet loss}
+\subsection{Network packet loss}
+\label{sub:Network packet loss}
 
 On networks experiencing a high rate of packet loss - error correcting protocols
 like TCP can help ensure packet delivery at the IP layer. Additionally,
 check-summing the messages can help guard against message corruption through lost
 packets.
 
-\subsubsection{Message power cost}
-\label{subs:Message power cost}
+\subsection{Message power cost}
+\label{sub:Message power cost}
 
 Especially relevant for \gls{iot} and low-power devices - the amount of power
 consumed whilst exchanging messages (which is directly linked to the number of
@@ -136,8 +136,8 @@ affect this include:
   \item Network conditions (requiring re-transmits/computing checksums etc.)
 \end{itemize}
 
-\subsubsection{Message throughput}
-\label{subs:Message throughput}
+\subsection{Message throughput}
+\label{sub:Message throughput}
 
 Finally - the most obvious performance metric of a broker - the number of messages
 it can process per second. This is impacted by all of the above requirements,
@@ -146,27 +146,27 @@ overhead as possible. Network protocol can make a large difference here - with
 something like UDP being extremely cheap to send over the wire
 (if inherently unreliable).
 
-\subsection{GoLang}
-\label{sub:GoLang}
+\section{GoLang}
+\label{sec:GoLang}
 
 \todo[inline]{Overview of GoLang}
 
-\subsubsection{What is GoLang?}
-\label{subs:What is GoLang?}
+\subsection{What is GoLang?}
+\label{sub:What is GoLang?}
 
 \todo[inline]{History/Purpose/Development}
 
-\subsubsection{Concurrency vs Parallelism}
-\label{subs:Concurrency vs Parallism}
+\subsection{Concurrency vs Parallelism}
+\label{sub:Concurrency vs Parallism}
 
 \todo[inline]{Async IO vs multiple threads}
 
-\subsubsection{Why do we need concurrency?}
-\label{subs:Why do we need parallism}
+\subsection{Why do we need concurrency?}
+\label{sub:Why do we need parallism}
 
 \todo[inline]{Message broker functions - blocking vs non-blocking IO}
 
-\subsubsection{Concurrency in GoLang}
-\label{subs:Concurrency in GoLang}
+\subsection{Concurrency in GoLang}
+\label{sub:Concurrency in GoLang}
 
 \todo[inline]{GoRoutines/Channels etc.}
