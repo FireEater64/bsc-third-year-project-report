@@ -42,15 +42,83 @@ matters.
   \centering
   \input{figures/complexDirectMessaging}
   \caption{Ten services directly exchanging messages}
-  \label{fig:tikz:directMessaging}
+  \label{fig:tikz:complexDirectMessaging}
 \end{figure}
 
-This is a perfectly acceptable method of exchanging information between two services at a small scale. However (and perhaps unfortunately), systems rarely exist in pairs. One of the biggest issues with simple application-to-application messaging is demonstrated in Figure~\ref{fig:tikz:complexDirectMessaging} - as more nodes are added, the complexity of using direct connections increases exponentially\footnote{Assuming each service needs to talk to all other services}. Managing this complexity is difficult in a number of ways:
+This is a perfectly acceptable method of exchanging information between two
+services at a small scale. However (and perhaps unfortunately), systems rarely
+exist in pairs. One of the biggest issues with simple application-to-application
+messaging is demonstrated in Figure~\ref{fig:tikz:complexDirectMessaging} - as
+more nodes are added, the complexity of using direct connections increases
+exponentially (requiring $n^2 - n$ connections, where $n$ is the number of
+services)\footnote{Assuming each service needs to talk to all other services}.
+Managing this complexity is difficult in a number of ways:
 
 \begin{description}
-  \item[Service discovery] Firstly, each program requires some mechanism of discovering an endpoint for all the other services it wishes to communicate with. Typically, this is either provided via configuration shipped with the program, or is available from some central repository. There are also, however, problems involved with keeping this information up to date - as the services with which a client machine communicates may not always be available on the same endpoints all of the time (Possibly due to dynamic network configuration via DHCP, or the migration of a service between servers).
-  \item[Number of connections] As the number of services a program communicates with increases, so do the number of connections said program is required to maintain. This could be a non-issue if a connectionless protocol such as UDP (which has the distinct disadvantage of not having any deliverability guarentees). However, if a connection-oriented protocol such as TCP is used, there can be significant overhead associated with maintaining large numbers of connections.\todo{Do we need a section on TCP/UDP?}
+  \item[Service discovery] \hfill \\
+  Firstly, each program requires some mechanism of discovering an endpoint for
+  all the other services it wishes to communicate with. Typically, this is
+  either provided via configuration shipped with the program, or is available
+  from some central repository. There are also, however, problems involved with
+  keeping this information up to date - as the services with which a client
+  machine communicates may not always be available on the same endpoints all of
+  the time (Possibly due to dynamic network configuration via DHCP, or the
+  migration of a service between servers).
+  \item[Number of connections] \hfill \\
+  As the number of services a program communicates with increases, so do the
+  number of connections said program is required to maintain. This could be a
+  non-issue if a connectionless protocol such as UDP (which has the distinct
+  disadvantage of not having any deliverability guarantees). However, if a
+  connection-oriented protocol such as TCP is used, there can be significant
+  overhead associated with maintaining large numbers of
+  connections\footnote{Although this is less of a problem with modern hardware:
+  \url{http://c10m.robertgraham.com/p/manifesto.html}}\todo{Do we need a section
+  on network protocols?}.
+  \item[Readiness to receive] \hfill \\
+  When a service sends a message across the network, the assumption is that the
+  recipient of the message is ready to receive it.  However, this is not always
+  the case. The recipient may be performing some other task when the message is
+  sent - or may even be busy processing the previous message it received. There
+  are several programming techniques which can be employed to reduce the
+  possibility of lost messages - relying on  the built-in congestion-control
+  protocols, such as those present in \gls{tcp}, and writing multithreaded or
+  asynchronous (Section~\ref{sec:sub:concurrencyparallelism}) code. However,
+  more often than not, application developers end up having to write code to
+  handle communicating with services that are (for whatever reason) unavailable.
 \end{description}
+
+\begin{figure}[ht]
+  \centering
+  \input{figures/messageBroker}
+  \caption{Ten services exchanging messages via a broker}
+  \label{fig:tikz:messageBroker}
+\end{figure}
+
+Message brokers offer a layer of abstraction to developers wishing to exchange
+messages between services. Rather than contacting the service directly, messages
+are relayed via the broker (Figure~\ref{fig:tikz:messageBroker}). This not only
+reduced the number of connections required for application to exchange messages
+(Figure~\ref{fig:tikz:complexBrokerMessaging}), but also simplifies service
+discovery. Each service need only know the connection details for the message
+broker, and the name of the queue/topic (Sections \ref{sub:Queues} and
+\ref{sub:Topics}) to send/receive messages on. The services are free to move
+around independently of each other - which removes the need for complex service
+discovery protocols. Additionally, by decoupling the sending and receiving of
+messages (Section~\ref{sub:pubsub}) brokers can act as a buffer between
+communicating processes, preventing the receiving process from becoming swamped
+by incoming messages (\gls{dos}).
+
+\begin{figure}[ht]
+  \centering
+  \input{figures/complexBrokerMessaging}
+  \caption{Ten services exchanging messages via a broker}
+  \label{fig:tikz:complexBrokerMessaging}
+\end{figure}
+
+\subsection{Pub/Sub}
+\label{sub:pubsub}
+
+Brief overview of the pub/sub model.
 
 \subsection{Queues}
 \label{sub:Queues}
@@ -153,12 +221,12 @@ affect this include:
 \subsection{Message throughput}
 \label{sub:Message throughput}
 
-Finally - the most obvious performance metric of a broker - the number of messages
-it can process per second. This is impacted by all of the above requirements,
-and can be maximized through the use of small, cheap messages, with as little
-overhead as possible. Network protocol can make a large difference here - with
-something like UDP being extremely cheap to send over the wire
-(if inherently unreliable).
+Finally - the most obvious performance metric of a broker - the number of
+messages it can process per second. This is impacted by all of the above
+requirements, and can be maximized through the use of small, cheap messages,
+with as little overhead as possible. Network protocol can make a large
+difference here - with something like UDP being extremely cheap to send over the
+wire (if inherently unreliable).
 
 \section{GoLang}
 \label{sec:GoLang}
@@ -171,7 +239,7 @@ something like UDP being extremely cheap to send over the wire
 \todo[inline]{History/Purpose/Development}
 
 \subsection{Concurrency vs Parallelism}
-\label{sub:Concurrency vs Parallism}
+\label{sub:concurrencyparallelism}
 
 \todo[inline]{Async IO vs multiple threads}
 

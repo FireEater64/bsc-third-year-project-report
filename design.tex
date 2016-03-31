@@ -9,10 +9,10 @@ Brief overview of the open development mentality ().
 \section{SLA/QoS Specification}
 \label{sec:SLA/QoS Specification}
 
-One of the main goals of this project, was to produce a single message broker that
-is capable of living up to multiple different \glspl{sla}, depending on what was
-requested by the user/the current state of the network. These SLAs can be divided
-into multiple categories:
+One of the main goals of this project, was to produce a single message broker
+that is capable of living up to multiple different \glspl{sla}, depending on
+what was requested by the user/the current state of the network. These SLAs can
+be divided into multiple categories:
 
 \subsection{Failure Handling}
 \label{sub:Failure Handling}
@@ -26,18 +26,19 @@ three different semantics with which \glspl{rpc} could be executed:
   \item[Exactly once] \hfill \\
     The ideal scenario is one in which messages are passed to their destination
     once, and exactly once. Typically, when failure does not occur during a
-    message transfer this is trivial to assert - simply receiving an acknowledgement
-    from the recipient of the message confirms this to be the case.
-    Unfortunately, the same cannot be said when a response is not received from
-    the recipient, for whatever reason (link failure/machine failure etc.).
+    message transfer this is trivial to assert - simply receiving an
+    acknowledgement from the recipient of the message confirms this to be the
+    case. Unfortunately, the same cannot be said when a response is not received
+    from the recipient, for whatever reason (link failure/machine failure etc.).
     This is a typical illustration of the
     'Two Generals Problem'\cite{Gray:1978:NDB:647433.723863} - and is extremely
     difficult to guard against. As a result - most messaging systems adopt one
     of the following behavioural models in the event of failure.
   \item[At most once] \hfill \\
-    In the event that a message is lost without acknowledgement - no attempt is made
-    to redeliver the message. This is used in situations where duplicated messages
-    pose a risk to overall system integrity - for example in most financial systems.
+  In the event that a message is lost without
+  acknowledgement - no attempt is made to redeliver the message. This is used in
+  situations where duplicated messages pose a risk to overall system integrity -
+  for example in most financial systems.
   \item[At least once] \hfill \\
     In the event that a message is lost without acknowledgement, attempts to
     redeliver the message continue until successful receipt is acknowledged.
@@ -70,8 +71,8 @@ message.
 
 On networks experiencing a high rate of packet loss - error correcting protocols
 like TCP can help ensure packet delivery at the IP layer. Additionally,
-check-summing the messages can help guard against message corruption through lost
-packets.
+check-summing the messages can help guard against message corruption through
+lost packets.
 
 \subsection{Message power cost}
 \label{sub:Message power cost}
@@ -92,12 +93,11 @@ affect this include:
 \subsection{Message throughput}
 \label{sub:Message throughput}
 
-Finally - the most obvious performance metric of a broker - the number of messages
-it can process per second. This is impacted by all of the above requirements,
-and can be maximized through the use of small, cheap messages, with as little
-overhead as possible. Network protocol can make a large difference here - with
-something like UDP being extremely cheap to send over the wire
-(if inherently unreliable).
+Finally - the most obvious performance metric of a broker - the number of messages it can process per second. This is impacted by all of the above
+requirements, and can be maximized through the use of small, cheap messages,
+with as little overhead as possible. Network protocol can make a large
+difference here - with something like UDP being extremely cheap to send over the
+wire (if inherently unreliable).
 
 The above axioms make an interesting optimization problem. The 'optimal' combination
 of protocol and broker algorithm varies dramatically depending on the developer
@@ -132,12 +132,23 @@ Should be easily accessible, and visualized.
 \section{Configuration}
 \label{sec:Configuration}
 
-As with most pieces of software - there are situations where the default behavior of a message broker requires adjustment to suit its operating environment. One example of this is the network port that the broker operates on, and which other applications will connect to in order to exchange messages. Whilst the default port (48879\footnote{A number chosen due to its memorable hexadecimal representation: \texttt{0xBEEF}} in the case of this broker) may be suitable in most cases, since no other 'well-known' applications use that particular port.\footnote{\url{https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers}}.
+As with most pieces of software - there are situations where the default
+behavior of a message broker requires adjustment to suit its operating
+environment. One example of this is the network port that the broker operates
+on, and which other applications will connect to in order to exchange messages.
+Whilst the default port (48879\footnote{A number chosen due to its memorable
+hexadecimal representation: \texttt{0xBEEF}} in the case of this broker) may be
+suitable in most cases, since no other 'well-known' applications use that
+particular
+port.\footnote{\url{https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers}}.
 
 \subsection{Command-line configuration}
 \label{sub:Command-line configuration}
 
-A number of these configurable parameters make sense to expose as command-line parameters, specified at application start time. The available parameters can be exposed using the \texttt{--help} parameter, the output of which can be seen in Listing~\ref{lst:gamqHelpOutput}
+A number of these configurable parameters make sense to expose as command-line
+parameters, specified at application start time. The available parameters can be
+exposed using the \texttt{--help} parameter, the output of which can be seen in
+Listing~\ref{lst:gamqHelpOutput}
 
 \begin{listing}[ht]
   \centering
@@ -149,7 +160,13 @@ A number of these configurable parameters make sense to expose as command-line p
 \subsection{File-based configuration}
 \label{sub:File-based configuration}
 
-Whilst specifying arguments on the command line gives flexibility, there are certain options that, whilst configurable, are either too numerous, or change too infrequently to justify command-line flags. One major example of this is the log configuration for the broker - specifying the format, and location of messages logged using the \href{https://github.com/cihub/seelog}{Seelog} library. An example log configuration can be seen in Listing~\ref{lst:seelogConfig}.
+Whilst specifying arguments on the command line gives flexibility, there are
+certain options that, whilst configurable, are either too numerous, or change
+too infrequently to justify command-line flags. One major example of this is the
+log configuration for the broker - specifying the format, and location of
+messages logged using the \href{https://github.com/cihub/seelog}{Seelog}
+library. An example log configuration can be seen in
+Listing~\ref{lst:seelogConfig}.
 
 \begin{listing}[ht]
   \centering
@@ -158,27 +175,8 @@ Whilst specifying arguments on the command line gives flexibility, there are cer
   \label{lst:seelogConfig}
 \end{listing}
 
-\section{GoLang}
-\label{sec:GoLang}
+\section{Code Structure}
+\label{sec:codestructure}
 
-\todo[inline]{Overview of GoLang}
-
-\subsection{What is GoLang?}
-\label{sub:What is GoLang?}
-
-\todo[inline]{History/Purpose/Development}
-
-\subsection{Concurrency vs Parallelism}
-\label{sub:Concurrency vs Parallism}
-
-\todo[inline]{Async IO vs multiple threads}
-
-\subsection{Why do we need concurrency?}
-\label{sub:Why do we need parallism}
-
-\todo[inline]{Message broker functions - blocking vs non-blocking IO}
-
-\subsection{Concurrency in GoLang}
-\label{sub:Concurrency in GoLang}
-
-\todo[inline]{GoRoutines/Channels etc.}
+\todo[inline]{Box-level overview of how the code is structured/how messages
+flow through the broker}
