@@ -100,13 +100,13 @@ are relayed via the broker (Figure~\ref{fig:tikz:messageBroker}). This not only
 reduced the number of connections required for application to exchange messages
 (Figure~\ref{fig:tikz:complexBrokerMessaging}), but also simplifies service
 discovery. Each service need only know the connection details for the message
-broker, and the name of the queue/topic (Sections \ref{sub:Queues} and
-\ref{sub:Topics}) to send/receive messages on. The services are free to move
-around independently of each other - which removes the need for complex service
-discovery protocols. Additionally, by decoupling the sending and receiving of
-messages (Section~\ref{sub:pubsub}) brokers can act as a buffer between
-communicating processes, preventing the receiving process from becoming swamped
-by incoming messages (\gls{dos}).
+broker, and the name of the queue/topic (Sections \ref{sub:queues} and
+\ref{sub:Topics}) to send/receive messages on. The locations of the services
+sending/receiving messages through the broker no long matters - which removes
+the need for complex service discovery protocols. Additionally, by decoupling
+the sending and receiving of messages (Section~\ref{sub:pubsub}) brokers can act
+as a buffer between communicating processes, preventing the receiving process
+from becoming swamped by incoming messages (\gls{dos}).
 
 \begin{figure}[ht]
   \centering
@@ -118,18 +118,57 @@ by incoming messages (\gls{dos}).
 \subsection{Pub/Sub}
 \label{sub:pubsub}
 
-Brief overview of the pub/sub model.
+Publish-subscribe is a software pattern, which describes the exchange of
+messages between one-or-more producers (publishers), and one-or-more recipients
+(subscribers). In a typical implementation, publishers send messages
+(Section~\ref{sub:messages}) to a broker - with a named destination (either a
+queue or topic). Subscribers register their interest ('subscribe') to these
+named destinations, and receive all messages sent to said destinations, in a
+manner dependant on whether the destination is a queue (see
+Section~\ref{sub:queues}) or a topic (see Section~\ref{sub:topics}). This
+pattern has several advantages, such as the ability for pub/sub infrastructure
+to scale up to handle message routing for an entire datacenter, with relatively
+little complexity. These advantages are explored in detail in
+Section~\ref{sec:brokers}. The disadvantages of the pub/sub model are associated
+with it's loose coupling - the model itself does not define a message format,
+leaving the creation and updating of message contracts to the application
+developer.\footnote{Although, as discussed in Section~\ref{sub:messages}, this
+can also be an advantage}.
 
 \subsection{Queues}
-\label{sub:Queues}
+\label{sub:queues}
 
-Brief overview of the features/operation of a queue, in relation to a message broker.
+Queues are a standard feature of most programming languages, a core Computer
+Science construct, and familiar to anyone who has ever been to a Post Office.
+Queues are a \gls{fifo} data-structure, which delivers messages in the order
+they were inserted into the queue. The other important features of queues in
+terms of the pub/sub model, is that they can have multiple publishers, and
+multiple subscribers. In the event of a queue having multiple subscribers,
+messages are typically delivered in a 'round-robin' fashion - that is to say,
+the next subscriber to receive a message will be the one who is ready to receive
+a message that has received a message least recently.
 
+A typical use of a Message
+Queue may be the distribution of job information, where messages consist of
+configuration for jobs, and worker applications subscribe to the queue this job
+information is posted on. Once a worker has finished the job it's working on, it
+received information for the next job off the queue. Each job is only ever
+received by a single worker.\todo{Example code/diagram. Make this clearer}
 
 \subsection{Topics}
-\label{sub:Topics}
+\label{sub:topics}
 
-Brief overview of the features/operation of a topic, in relation to a message broker.
+Similar to Queues (Section~\ref{sub:queues}), topics are \glf{fifo} structures.
+The key difference between topics and queues, is that whist queues deliver each
+message to a single subscriber, topics deliver each message to \textbf{every}
+subscriber. Each subscriber therefore receives a copy of each message sent to
+the topic. A common use of topics, is the updating of information in a
+distributed cache. Suppose a number of mobile phones maintained a cache of stock
+prices, and rely on a pub/sub mechanism to receive the latest prices. Obviously,
+a queue would be unsuitable for such a task, as it would only update the price
+for a \textbf{single} subscriber. A topic would ensure that each stock price
+published, would be sent to every mobile phone - updating the price for all
+subscribers.\todo{Example code/diagram. Make this clearer}.
 
 \subsection{Existing Brokers}
 \label{sub:Existing Brokers}
