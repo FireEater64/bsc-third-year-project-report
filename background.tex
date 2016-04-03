@@ -2,7 +2,7 @@
 \label{chap:Background}
 
 \section{Messages}
-\label{sec:Messages}
+\label{sec:messages}
 
 In today's interconnected world, computer programs rarely exist in a vacuum.
 Rather, they form one small part of a much larger \gls{soa} -
@@ -82,7 +82,7 @@ Managing this complexity is difficult in a number of ways:
   are several programming techniques which can be employed to reduce the
   possibility of lost messages - relying on  the built-in congestion-control
   protocols, such as those present in \gls{tcp}, and writing multithreaded or
-  asynchronous (Section~\ref{sec:sub:concurrencyparallelism}) code. However,
+  asynchronous (Section~\ref{sub:concurrencyparallelism}) code. However,
   more often than not, application developers end up having to write code to
   handle communicating with services that are (for whatever reason) unavailable.
 \end{description}
@@ -101,7 +101,7 @@ reduced the number of connections required for application to exchange messages
 (Figure~\ref{fig:tikz:complexBrokerMessaging}), but also simplifies service
 discovery. Each service need only know the connection details for the message
 broker, and the name of the queue/topic (Sections \ref{sub:queues} and
-\ref{sub:Topics}) to send/receive messages on. The locations of the services
+\ref{sub:topics}) to send/receive messages on. The locations of the services
 sending/receiving messages through the broker no long matters - which removes
 the need for complex service discovery protocols. Additionally, by decoupling
 the sending and receiving of messages (Section~\ref{sub:pubsub}) brokers can act
@@ -121,7 +121,7 @@ from becoming swamped by incoming messages (\gls{dos}).
 Publish-subscribe is a software pattern, which describes the exchange of
 messages between one-or-more producers (publishers), and one-or-more recipients
 (subscribers). In a typical implementation, publishers send messages
-(Section~\ref{sub:messages}) to a broker - with a named destination (either a
+(Section~\ref{sec:messages}) to a broker - with a named destination (either a
 queue or topic). Subscribers register their interest ('subscribe') to these
 named destinations, and receive all messages sent to said destinations, in a
 manner dependant on whether the destination is a queue (see
@@ -132,7 +132,7 @@ little complexity. These advantages are explored in detail in
 Section~\ref{sec:brokers}. The disadvantages of the pub/sub model are associated
 with it's loose coupling - the model itself does not define a message format,
 leaving the creation and updating of message contracts to the application
-developer.\footnote{Although, as discussed in Section~\ref{sub:messages}, this
+developer.\footnote{Although, as discussed in Section~\ref{sec:messages}, this
 can also be an advantage}.
 
 \subsection{Queues}
@@ -158,7 +158,7 @@ received by a single worker.\todo{Example code/diagram. Make this clearer}
 \subsection{Topics}
 \label{sub:topics}
 
-Similar to Queues (Section~\ref{sub:queues}), topics are \glf{fifo} structures.
+Similar to Queues (Section~\ref{sub:queues}), topics are \gls{fifo} structures.
 The key difference between topics and queues, is that whist queues deliver each
 message to a single subscriber, topics deliver each message to \textbf{every}
 subscriber. Each subscriber therefore receives a copy of each message sent to
@@ -275,10 +275,51 @@ wire (if inherently unreliable).
 \subsection{What is GoLang?}
 \label{sub:What is GoLang?}
 
-\todo[inline]{History/Purpose/Development}
+As mentioned in the introduction (Section~\ref{sec:background}), GoLang is a
+compiled, statically-typed language developed in part out of the authors
+frustrations with using more traditional languages, such as Java and C++, to
+develop network applications\cite{kenThompsonInterview}. Announced to the
+general public in 2009, GoLang was internally developed at Google to resolve the
+common criticisms with other popular languages at the time of development - a
+prime example being the long compilation times involved with working in
+languages such as C++\footnote{\url{http://stackoverflow.com/a/318440/1657432}}.
+One of the founding principals of Go was simplicity, and ease of maintainability
+\cite{Less is exponentially more} - even at the expense of performance in some
+areas. As such, Go has a relatively light core feature-set compared with most
+other 'network-oriented languages', and contains creature comforts not found in
+other performance-oriented languages like C++, such as Garbage Collection -
+something which has typically been the sole preserve of languages with an
+interpreted runtime, such as Java, Ruby and Python. However, due to its nature
+as a compiled language, Go still outperforms these 'traditional languages' in a
+number of standard
+benchmarks\footnote{\url{https://benchmarksgame.alioth.debian.org/u64q/go.html}}
+which, combined with the multitude of built-in concurrency features
+(Section~\ref{sub:golangConcurrency}) make Go an extremely compelling language
+for developing networked infrastructure code, such as a message broker.
 
 \subsection{Concurrency vs Parallelism}
 \label{sub:concurrencyparallelism}
+
+\todo[inline]{Why do we need either?}
+
+Confusion often exists as to the relationship between parallelism and concurrency, thanks in part to their often similar dictionary definitions:
+
+\begin{description}
+  \item[Concurrent] Going on side by side, as proceedings; occurring together, as events or circumstances; (\textit{source: OED})
+  \item[Parallelism] Concurrent or contemporary; existing in the same period of time. (\textit{source: OED})
+\end{description}
+
+However, as they relate to Computer Science, parallelism and concurrency are not at all the same. A concurrent task is one that has been designed to be independent of other tasks and which is interrupt-able. Concurrent tasks \emph{may or may not} be run in parallel with other concurrent tasks, and have the potential to decrease the real-world-time taken to perform a set of actions, even if executed on single-threaded (non-parallel) hardware.
+
+An real-world analogy - suppose the organizers of a draughts tournament wish to give 10 amateur players the opportunity to play a game with a professional player, and wish to conduct these games in as time-efficient a manner as possible. There are multiple ways the tournament could be run.
+
+The professional player could sit down with each of the ten amateurs, and play him/her to completion - before moving on to the next amateur. This is synonymous with \textbf{sequential} code execution. Assuming each game takes 10 minutes to complete, and that the time taken to transition from one game to another is 6 seconds ($6seconds * 10 \approx 1 minute$), then the time taken to complete the tournament is roughly 101 minutes (1 hour, 41 minutes). This is the worst case scenario.
+
+An alternative method of running the tournament would be to get the professional to play all 10 games \textbf{concurrently}. In this scenario, he/she would play a move against one opponent, before immediately moving on to the next game - leaving the amateur player to make his move. Assume that the professional player takes 6 seconds to play each move and, as before, takes 6 seconds to transition between games. With 10 amateur players, it will take approximately 120 seconds before he returns to his starting seat. Now assume that each amateur player takes 45 seconds to take his/her turn. Based on the 10 minute timer from the serial game - each game will last for $(10 * 60) / (45 + 6)\approx 11$ rounds per game.
+
+Now we can look at simple \textbf{parallism}.
+
+\todo{Mention (Javascript) callbacks}
 
 \todo[inline]{Async IO vs multiple threads}
 
@@ -288,6 +329,6 @@ wire (if inherently unreliable).
 \todo[inline]{Message broker functions - blocking vs non-blocking IO}
 
 \subsection{Concurrency in GoLang}
-\label{sub:Concurrency in GoLang}
+\label{sub:golangConcurrency}
 
 \todo[inline]{GoRoutines/Channels etc.}
