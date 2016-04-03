@@ -180,40 +180,42 @@ implementations, and their features.
 \section{Broker Requirements}
 \label{sec:requirements}
 
-A message-broker is rather an unusual piece of software, due to the fact that is has very few functional requirements.
+A message-broker is rather an unusual piece of software, due to the fact that is
+has very few functional requirements.\todo{Elaborate?}
 
 \subsection{Failure Handling}
 \label{sub:Failure Handling}
 
 The issue with gracefully handling communications failure in distributed systems
-was illustrated in a 1988 paper by Xerox employees
-Andrew Birrell and Bruce Nelson\cite{Birrell:1988:IRP:59309.59336}. They identified
-three different semantics with which \glspl{rpc} could be executed:
+was illustrated in a 1988 paper by Xerox employees Andrew Birrell and Bruce
+Nelson\cite{Birrell:1988:IRP:59309.59336}. They identified three different
+semantics with which \glspl{rpc} could be executed:
 
 \begin{description}
   \item[Exactly once] \hfill \\
     The ideal scenario is one in which messages are passed to their destination
     once, and exactly once. Typically, when failure does not occur during a
-    message transfer this is trivial to assert - simply receiving an acknowledgement
-    from the recipient of the message confirms this to be the case.
-    Unfortunately, the same cannot be said when a response is not received from
-    the recipient, for whatever reason (link failure/machine failure etc.).
-    This is a typical illustration of the
-    'Two Generals Problem'\cite{Gray:1978:NDB:647433.723863} - and is extremely
-    difficult to guard against. As a result - most messaging systems adopt one
-    of the following behavioural models in the event of failure.
+    message transfer this is trivial to assert - simply receiving an
+    acknowledgement from the recipient of the message confirms this to be the
+    case. Unfortunately, the same cannot be said when a response is not received
+    from the recipient, for whatever reason (link failure/machine failure etc.).
+    This is a typical illustration of the 'Two Generals
+    Problem'\cite{Gray:1978:NDB:647433.723863} - and is extremely difficult to
+    guard against. As a result - most messaging systems adopt one of the
+    following behavioural models in the event of failure.
   \item[At most once] \hfill \\
-    In the event that a message is lost without acknowledgement - no attempt is made
-    to redeliver the message. This is used in situations where duplicated messages
-    pose a risk to overall system integrity - for example in most financial systems.
+    In the event that a message is lost without acknowledgement - no attempt is
+    made to redeliver the message. This is used in situations where duplicated
+    messages pose a risk to overall system integrity - for example in most
+    financial systems.
   \item[At least once] \hfill \\
     In the event that a message is lost without acknowledgement, attempts to
     redeliver the message continue until successful receipt is acknowledged.
     This is typically used in situations where message delivery is deemed more
-    important than message uniqueness/ordering. For example, if the unacknowledged
-    message is intended to trigger a cache refresh in the recipient system - the
-    fact that the refresh may occur multiple times may be insignificant next to
-    the risk that the refresh does not happen at all.
+    important than message uniqueness/ordering. For example, if the
+    unacknowledged message is intended to trigger a cache refresh in the
+    recipient system - the fact that the refresh may occur multiple times may be
+    insignificant next to the risk that the refresh does not happen at all.
 \end{description}
 
 \subsection{Network Bandwidth Utilization}
@@ -229,17 +231,17 @@ computational load on both the broker and consumer.
 
 Devices experiencing high degrees of network latency can have tremendous impact
 on the overall \gls{rtt} of a given message. This can be compensated for through
-intelligent packet stuffing (such as Nagel's algorithm)/jumbo frames (if supported)
-by the network - all of which reduce the amount of overhead experienced by each
-message.
+intelligent packet stuffing (such as Nagel's algorithm)/jumbo frames (if
+supported) by the network - all of which reduce the amount of overhead
+experienced by each message.
 
 \subsection{Network packet loss}
 \label{sub:Network packet loss}
 
 On networks experiencing a high rate of packet loss - error correcting protocols
 like TCP can help ensure packet delivery at the IP layer. Additionally,
-check-summing the messages can help guard against message corruption through lost
-packets.
+check-summing the messages can help guard against message corruption through
+lost packets.
 
 \subsection{Message power cost}
 \label{sub:Message power cost}
@@ -302,13 +304,16 @@ for developing networked infrastructure code, such as a message broker.
 
 \todo[inline]{Why do we need either?}
 
-Confusion often exists as to the relationship between parallelism and concurrency, thanks in part to their often similar dictionary definitions:
+Confusion often exists as to the relationship between parallelism and
+concurrency, thanks in part to their often similar dictionary definitions:
 
 \begin{description}
   \item[Concurrent] \hfill \\
-  Going on side by side, as proceedings; occurring together, as events or circumstances; (\textit{source: OED})
+  Going on side by side, as proceedings; occurring together, as events or
+  circumstances; (\textit{source: OED})
   \item[Parallelism] \hfill \\
-  Concurrent or contemporary; existing in the same period of time. (\textit{source: OED})
+  Concurrent or contemporary; existing in the same period of time.
+  (\textit{source: OED})
 \end{description}
 
 However, as they relate to Computer Science, parallelism and concurrency are not
