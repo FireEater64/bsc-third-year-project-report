@@ -1,0 +1,15 @@
+\begin{tikzpicture}
+
+\coordinate (s) at (0,0);
+\foreach \num in {0,...,6}{
+    \ifthenelse{\num > 0 \AND \num < 4}
+    {\node[draw, minimum size=1cm] at (s) (\num) {m\num};} % Fill the box
+    {\node[draw, minimum size=1cm] at (s) (\num) {};} % Don't fill the box
+
+    \coordinate (s) at ($(s) + (1,0)$);
+}
+
+\node[above=1mm of 0] {$h$};
+\node[above=1mm of 4] {$t$};
+
+\end{tikzpicture}

@@ -11,8 +11,56 @@
 
 \todo[inline]{Overview of the connection manager (TCP/UDP connections etc.)}
 
-\subsection{Message Handlers}
+\subsection{Message Storage}
 \label{sub:Message Handlers}
+
+In the event that, for whatever reason, a client is not ready to accept a
+message when it arrives - this message must be buffered up in a datastructure of
+some kind, until delivery is possible. There are a number of different
+datastructures that could be used - each with its own pros and cons. \\
+
+As mentioned in Section~\ref{sub:pubsub}, message brokers typically support a
+number of different delivery patterns, the two most common of which are Queues
+(Section~\ref{sub:queues}) and Topics (Section~\ref{sub:topics}). The backing
+datastructures used for each are explored below. \\
+
+Queues require that messages are delivered in the order they are pushed onto the
+queue, and that each message is delivered to a single consumer - so any backing
+datastructure must support this. The simplest method of representing a queue of
+messages, would be an array. New messages are inserted into the first unoccupied
+slot in the array, and messages are read front-to-back, in a \gls{fifo} fashion.
+
+\begin{figure}[ht]
+  \centering
+  \begin{subfigure}[b]{\textwidth}
+    \centering
+    \input{figures/queueArray}
+    \caption{Messages are read from the head of the queue ($h$)}
+    \label{fig:tikz:queueArrayInitial}
+  \end{subfigure}
+
+  \begin{subfigure}[b]{\textwidth}
+    \centering
+    \input{figures/queueArrayHeadRead}
+    \caption{The array is shuffled down}
+    \label{fig:tikz:queueArrayHeadRead}
+  \end{subfigure}
+
+  \begin{subfigure}[b]{\textwidth}
+    \centering
+    \input{figures/queueArrayPostShuffle}
+    \caption{The next message is now ready to be read}
+    \label{fig:tikz:queueArrayPostShuffle}
+  \end{subfigure}
+  \caption{Reading a message from an array-based queue}
+  \label{fig:tikz:queueArray}
+\end{figure}
+
+However, there are several disadvantages of this approach. When a message is
+read from the backing store - the entire array must be '\textit{shuffled}' down,
+ready for the next read, as demonstrated in Figure~\ref{fig:tikz:queueArray}.
+This memory copy is expensive - especially if the array is large, and full of
+elements.
 
 \todo[inline]{Message storage/datastructures etc.}
 
