@@ -1,0 +1,21 @@
+\begin{tikzpicture}[thick]
+
+\coordinate (s) at (0,0);
+\foreach \num[remember=\num as \previous] in {0,...,4}{
+    \ifthenelse{\num < 2}
+    {\node[draw, minimum size=1cm, gray] at (s) (\num) {m\num};}
+    {\node[draw, minimum size=1cm] at (s) (\num) {m\num};}
+
+    \ifthenelse{\num < 3}
+    {\ifthenelse{\num > 0}{\draw[->, gray](\previous) edge (\num);}{}}
+    {\draw[->](\previous) edge (\num);}
+
+    \coordinate (s) at ($(s) + (2,0)$);
+}
+
+
+\node[above=0.5cm of 2] (head) {$h$};
+\node[above=1mm of 4] {$t$};
+\draw[->](head) edge (2);
+
+\end{tikzpicture}

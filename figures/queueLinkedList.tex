@@ -1,0 +1,19 @@
+\begin{tikzpicture}
+
+\coordinate (s) at (0,0);
+\foreach \num[remember=\num as \previous] in {0,...,4}{
+    \node[draw, minimum size=1cm] at (s) (\num) {m\num};
+
+    \ifthenelse{\num > 0}
+    {\draw[->](\previous) edge (\num);}
+    {}
+
+    \coordinate (s) at ($(s) + (2,0)$);
+}
+
+
+\node[above=0.5cm of 0] (head) {$h$};
+\node[above=1mm of 4] {$t$};
+\draw[->,thick](head) edge (0);
+
+\end{tikzpicture}

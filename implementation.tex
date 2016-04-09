@@ -56,11 +56,44 @@ slot in the array, and messages are read front-to-back, in a \gls{fifo} fashion.
   \label{fig:tikz:queueArray}
 \end{figure}
 
-However, there are several disadvantages of this approach. When a message is
-read from the backing store - the entire array must be '\textit{shuffled}' down,
-ready for the next read, as demonstrated in Figure~\ref{fig:tikz:queueArray}.
-This memory copy is expensive - especially if the array is large, and full of
-elements.
+However, there are several disadvantages of this approach. In most programming
+languages, arrays are fixed-size datastructures - but a message queue may
+receive an undefined number  of messages to buffer. This fixed size also leads
+to inefficiencies when the queue is empty - as space for the array will remain
+allocated. When a message is read from the backing store - the entire array must
+be '\textit{shuffled}' down, ready for the next read, as demonstrated in
+Figure~\ref{fig:tikz:queueArray}. This memory copy is expensive - especially if
+the array is large, full of elements, and
+uncached.\footnote{\url{https://gist.github.com/jboner/2841832}}\\
+
+An alternative method of representing an in-memory-queue, is a linked list.
+
+\begin{figure}[ht]
+  \centering
+  \begin{subfigure}[b]{\textwidth}
+    \centering
+    \input{figures/queueLinkedList}
+    \caption{Messages are read from the head of the queue ($h$)}
+    \label{fig:tikz:queueLinkedList}
+  \end{subfigure}
+
+  \begin{subfigure}[b]{\textwidth}
+    \centering
+    \input{figures/queueLinkedListHeadRead}
+    \caption{Head moves, and read nodes are marked for garbage collection}
+    \label{fig:tikz:queueLinkedListHeadRead}
+  \end{subfigure}
+
+  \begin{subfigure}[b]{\textwidth}
+    \centering
+    \input{figures/queueLinkedListGCRun}
+    \caption{At some point in the future (depending on memory pressure),
+             the Garbage Collector will clean up the read messages}
+    \label{fig:tikz:queueLinkedListGCRun}
+  \end{subfigure}
+  \caption{Reading a message from an array-based queue}
+  \label{fig:tikz:queueLinkedListGCRun}
+\end{figure}
 
 \todo[inline]{Message storage/datastructures etc.}
 
