@@ -26,9 +26,18 @@ datastructures used for each are explored below. \\
 
 Queues require that messages are delivered in the order they are pushed onto the
 queue, and that each message is delivered to a single consumer - so any backing
-datastructure must support this. The simplest method of representing a queue of
-messages, would be an array. New messages are inserted into the first unoccupied
-slot in the array, and messages are read front-to-back, in a \gls{fifo} fashion.
+datastructure must support this. Queues typically support two main operations:
+
+\begin{description}
+  \item[\textit{enqueue(m)}] \hfill \\
+    The message $m$ is placed onto the queue.
+  \item[\textit{dequeue()}] \hfill \\
+    Returns the message at the front of the queue (optionally blocks whilst the queue is empty)
+\end{description}
+
+The simplest method of representing a queue of messages, would be an array. New
+messages are inserted into the first unoccupied slot in the array, and messages
+are read front-to-back, in a \gls{fifo} fashion.
 
 \begin{figure}[ht]
   \centering
@@ -56,17 +65,52 @@ slot in the array, and messages are read front-to-back, in a \gls{fifo} fashion.
   \label{fig:tikz:queueArray}
 \end{figure}
 
-However, there are several disadvantages of this approach. In most programming
-languages, arrays are fixed-size datastructures - but a message queue may
-receive an undefined number  of messages to buffer. This fixed size also leads
-to inefficiencies when the queue is empty - as space for the array will remain
-allocated. When a message is read from the backing store - the entire array must
-be '\textit{shuffled}' down, ready for the next read, as demonstrated in
-Figure~\ref{fig:tikz:queueArray}. This memory copy is expensive - especially if
-the array is large, full of elements, and
-uncached.\footnote{\url{https://gist.github.com/jboner/2841832}}\\
+However, there are several disadvantages of this approach, for both the enqueue and dequeue operations.
 
-An alternative method of representing an in-memory-queue, is a linked list.
+\begin{description}
+  \item[\textit{enqueue(m)}] \hfill \\
+    Arrays in GoLang have a fixed length - but there is no limit on the number
+    of messages a queue may be asked to buffer. We can compensate for this by
+    using 'slices' instead of arrays\todo{Explain slices - seperate section} -
+    which are expandable using the \mintinline{go}{append()} command
+    (Listing~\ref{lst:golangAppendToSlice}). The message $m$ is stored into the
+    first available array index, which will typically complete in $O(1)$ time.
+    However, in order to create the illusion of an 'expandable' array, slices
+    use a fixed-length array under the hood - which is expanded when full. This
+    expansion involves creating a new array, which is twice the size of the
+    original. Each message in the underlying array is then copied to the new
+    array, which is used for all slice actions going forward. Therefore, whilst
+    the vast majority of messages will be stored in $O(1)$ time, a message that
+    triggers an expansion of the underlying array will require $O(n)$ time to
+    store (where $n$ is the number of messages in the queue)\todo{Improve
+    notation}.
+  \item[\textit{dequeue()}] \hfill \\
+    Pulling the first message in the array requires that the array be shuffled
+    after each \mintinline{go}{dequeue()} operation, so that the next message to
+    be delivered always resides in  array position 0 (see in
+    Figure~\ref{fig:tikz:queueArray}). An array implementation would be
+    extremely inefficient, requiring $n - 1$ items to moved down an array
+    position. However, because a slice is simply a 'view' onto an array, this
+    operation can be made extremely efficient - by simply creating a new slice,
+    with all but the first element in common with the original.\todo{Diagram?}
+    It is therefore possible to complete this operation in $O(1)$ time.
+\end{description}
+
+\begin{listing}[ht]
+  \centering
+  \inputminted[firstline=7, lastline=12]{go}{code/snippets/appendToSlice.go}
+  \caption{An example of appending to a GoLang slice}
+  \label{lst:golangAppendToSlice}
+\end{listing}
+
+In addition to the disadvantages given above, slices are quite inefficient when
+it comes to memory utilisation. At any moment in time, up to 50\% of the
+underlying array will be empty. Whilst these array indexes do not contain
+messages, they still occupy space in memory, meaning that (in the worst case
+scenario) $O(2n)$ space is required to store $n$ messages. This is not ideal.
+
+An alternative method of representing an in-memory-queue, is a linked list (Figure~\ref{fig:tikz:queueLinkedList}).
+This has numerous advantages over an array - with both enqueue and dequeue operations completing in $O(1)$ time.
 
 \begin{figure}[ht]
   \centering
@@ -74,7 +118,7 @@ An alternative method of representing an in-memory-queue, is a linked list.
     \centering
     \input{figures/queueLinkedList}
     \caption{Messages are read from the head of the queue ($h$)}
-    \label{fig:tikz:queueLinkedList}
+    \label{fig:tikz:queueLinkedListInitial}
   \end{subfigure}
 
   \begin{subfigure}[b]{\textwidth}
@@ -92,7 +136,7 @@ An alternative method of representing an in-memory-queue, is a linked list.
     \label{fig:tikz:queueLinkedListGCRun}
   \end{subfigure}
   \caption{Reading a message from an array-based queue}
-  \label{fig:tikz:queueLinkedListGCRun}
+  \label{fig:tikz:queueLinkedList}
 \end{figure}
 
 \todo[inline]{Message storage/datastructures etc.}
