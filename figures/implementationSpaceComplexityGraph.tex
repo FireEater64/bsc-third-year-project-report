@@ -1,0 +1,16 @@
+\begin{tikzpicture}
+\begin{axis}[
+    xlabel=$s$,
+    ylabel={Memory required (units)},
+    xmin=0,
+    xtick={1,...,10},
+    scaled ticks=false,
+    legend entries={Array Topic, Linked List Topic, Array Queue, Linked List Queue},
+    legend pos=outer north east,
+]
+\addplot {2 * x * 1000};
+\addplot {x + 1000};
+\addplot {2 * 1000};
+\addplot {1000};
+\end{axis}
+\end{tikzpicture}

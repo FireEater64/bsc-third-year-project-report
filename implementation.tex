@@ -39,7 +39,7 @@ The simplest method of representing a queue of messages, would be an array. New
 messages are inserted into the first unoccupied slot in the array, and messages
 are read front-to-back, in a \gls{fifo} fashion.
 
-\begin{figure}[ht]
+\begin{figure}[H]
   \centering
   \begin{subfigure}[b]{\textwidth}
     \centering
@@ -96,7 +96,7 @@ However, there are several disadvantages of this approach, for both the enqueue 
     It is therefore possible to complete this operation in $O(1)$ time.
 \end{description}
 
-\begin{listing}[ht]
+\begin{listing}[H]
   \centering
   \inputminted[firstline=7, lastline=12]{go}{code/snippets/appendToSlice.go}
   \caption{An example of appending to a GoLang slice}
@@ -109,10 +109,25 @@ underlying array will be empty. Whilst these array indexes do not contain
 messages, they still occupy space in memory, meaning that (in the worst case
 scenario) $O(2n)$ space is required to store $n$ messages. This is not ideal.
 
-An alternative method of representing an in-memory-queue, is a linked list (Figure~\ref{fig:tikz:queueLinkedList}).
-This has numerous advantages over an array - with both enqueue and dequeue operations completing in $O(1)$ time.
+An alternative method of representing an in-memory-queue, is a linked list
+(Figure~\ref{fig:tikz:queueLinkedList}). This has numerous advantages over an
+array - with both enqueue and dequeue operations completing in $O(1)$ time.
+Linked lists also improve on the space complexity of the queue, as the
+datastructure grows and shrinks in response  to the number of messages - meaning
+that we require $O(n)$ memory to store $n$ messages.
 
-\begin{figure}[ht]
+\begin{description}
+  \item[\textit{enqueue(m)}] \hfill \\
+    The item at the tail of the queue ($t$) - seen in
+    Figure~\ref{fig:tikz:queueLinkedListInitial} - is simply updated with a
+    pointer to $m$. This is an $O(1)$ operation, and simple to perform.
+  \item[\textit{dequeue()}] \hfill \\
+    The item at the head of the queue ($h$) is returned. The head pointer is
+    then updated to point to the next message to be read, as in
+    Figure~\ref{fig:tikz:queueLinkedListHeadRead}.
+\end{description}
+
+\begin{figure}[H]
   \centering
   \begin{subfigure}[b]{\textwidth}
     \centering
@@ -131,15 +146,46 @@ This has numerous advantages over an array - with both enqueue and dequeue opera
   \begin{subfigure}[b]{\textwidth}
     \centering
     \input{figures/queueLinkedListGCRun}
-    \caption{At some point in the future (depending on memory pressure),
-             the Garbage Collector will clean up the read messages}
+    \caption{At some point in the future (depending on memory pressure), the
+             \gls{gc} will automatically clean up the read messages}
     \label{fig:tikz:queueLinkedListGCRun}
   \end{subfigure}
   \caption{Reading a message from an array-based queue}
   \label{fig:tikz:queueLinkedList}
 \end{figure}
 
-\todo[inline]{Message storage/datastructures etc.}
+A full implementation of a linked list queue can be found in
+Appendix~\ref{appendix:queueCode}.
+
+When it comes to representing topics, the situation is similar. As mentioned in
+Section~\ref{sub:topics}, the main difference between queues and topics, is the
+fact that queues deliver each message to a single consumer, whereas topics
+deliver each message to \emph{all} consumers. This requires a subtly different
+datastructure to hold the messages - as consumers may read messages at different
+rates.\todo{Figure} If we use an array-based datastructure, similar to that in
+Figure~\ref{fig:tikz:queueArray}, we would be required to maintain a seperate
+queue for each subscriber\todo{Figure} to read from. A topic with $s$
+subscribers, and $n$ pending messages would therefore require at \emph{least}
+$O(n * s)$ memory, and that is without considering the caveats described
+above\todo{XReference}. \\
+
+A linked-list implementation, however, has the potential to be highly efficient
+when it comes to storage space. Rather than storing $s$ messages, we can simply
+keep multiple 'head' pointers on the same linked-list, one for each subscriber.
+When a subscriber consumes a message - only the head pointer belonging to it is
+moved up the list, the rest remain static. This method only requires $O(s + m)$
+memory, for a topic with $s$ subscribers, and $m$ messages. The linked-list
+implementation of a topic therefore has an even bigger efficiency saving over
+the corresponding array-based implementation, than in the queue examples given
+above, as seen in Figure~\ref{fig:tikz:implementationSpaceComplexityGraph}.
+
+\begin{figure}[H]
+  \centering
+  \input{figures/implementationSpaceComplexityGraph}
+  \caption{A comparison of the space complexities of various queue/topic
+           implementations, as the number of subscribers ($s$) increases}
+  \label{fig:tikz:implementationSpaceComplexityGraph}
+\end{figure}
 
 \subsection{Message Shipper}
 \label{sub:Message Shipper}
