@@ -124,7 +124,7 @@ messages between one-or-more producers (publishers), and one-or-more recipients
 (Section~\ref{sec:messages}) to a broker - with a named destination (either a
 queue or topic). Subscribers register their interest ('subscribe') to these
 named destinations, and receive all messages sent to said destinations, in a
-manner dependant on whether the destination is a queue (see
+manner dependent on whether the destination is a queue (see
 Section~\ref{sub:queues}) or a topic (see Section~\ref{sub:topics}). This
 pattern has several advantages, such as the ability for pub/sub infrastructure
 to scale up to handle message routing for an entire datacenter, with relatively
@@ -218,12 +218,12 @@ semantics with which \glspl{rpc} could be executed:
     insignificant next to the risk that the refresh does not happen at all.
 \end{description}
 
-\subsection{Network Bandwidth Utilization}
+\subsection{Network Bandwidth Utilisation}
 \label{sub:Network Bandwidth Utilization}
 
 In many situations (and in \gls{iot} devices in particular) network bandwidth is
 a limiting resource. Message compression can be used in certain situations to
-reduce overall bandwidth utilization of the broker - at the cost of increased
+reduce overall bandwidth utilisation of the broker - at the cost of increased
 computational load on both the broker and consumer.
 
 \subsection{Network latency}
@@ -264,7 +264,7 @@ affect this include:
 
 Finally - the most obvious performance metric of a broker - the number of
 messages it can process per second. This is impacted by all of the above
-requirements, and can be maximized through the use of small, cheap messages,
+requirements, and can be maximised through the use of small, cheap messages,
 with as little overhead as possible. Network protocol can make a large
 difference here - with something like UDP being extremely cheap to send over the
 wire (if inherently unreliable).
@@ -323,7 +323,7 @@ independent of other tasks and which is interrupt-able. Concurrent tasks
 the potential to decrease the real-world-time taken to perform a set of actions,
 even if executed on single-threaded (non-parallel) hardware. \\
 
-An real-world analogy - suppose the organizers of a draughts tournament wish to
+An real-world analogy - suppose the organisers of a draughts tournament wish to
 give 10 amateur players the opportunity to play a game with a professional
 player, and wish to conduct these games in as time-efficient a manner as
 possible. There are multiple ways the tournament could be run. \\
@@ -351,7 +351,7 @@ $$(11 * \text{time\_taken\_per\_move} + 11 * \text{transition\_time}) = (11 * 51
 This equates to 20 minutes, and 21 seconds - a dramatic improvement over the
 sequential method. \\
 
-Now we can look at the effect of simple \textbf{parallism} on the tournament
+Now we can look at the effect of simple \textbf{parallelism} on the tournament
 time. Assuming we return to the sequential tournament method, but invite a
 second professional player to the match. The effects of this are rather
 obviously - playing two games at once will half the time taken to complete all
@@ -364,12 +364,77 @@ tournament than the concurrent method. \\
 
 \todo[inline]{Async IO vs multiple threads}
 
-\subsection{Why do we need concurrency?}
-\label{sub:Why do we need parallism}
-
-\todo[inline]{Message broker functions - blocking vs non-blocking IO}
-
 \subsection{Concurrency in GoLang}
 \label{sub:golangConcurrency}
+
+\subsection{Why do we need concurrency?}
+\label{sub:whyConcurrency}
+
+A message broker operates in, what is an inherently parallel environment. As
+shown in Figure~\ref{fig:tikz:complexBrokerMessaging}, a broker is expected to
+hold a great many 'conversations' with clients at any one moment in time. These
+clients will be sending new messages, expecting to receive published messages,
+creating/deleting queues and topics - all at the same time. As mentioned in
+Section~\ref{sec:requirements}, these client requests need to be serviced in a
+timely manner. Whilst a sequential approach to designing a broker may well work
+in simple environments, this approach simply does not scale to the levels of
+enterprise message brokers, which deal with thousands of message per second,
+serving hundreds of clients.
+
+One approach to dealing with this environmental parallelism, is to use
+multi-threading. In a traditional language like Java, creating a separate thread
+for dealing with each client would improve the response times for individual
+clients, as well as allow the broker to take advantage of modern, multithreaded
+hardware. There exist, however, two big issues with this approach. In more
+traditional multi-threaded languages.
+
+\paragraph{Memory footprint} \mbox{}\\
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{figures/threads}
+  \caption{Traditional thread memory model \cite{performanceWithoutTheEventLoop}}
+  \label{fig:threadMemoryModel}
+\end{figure}
+
+Threads have a fairly large memory footprint. Java threads, for example, are
+allocated with roughly \SI{512}{\kibi\byte} of stack memory. Each thread stack
+is bounded by a \emph{guard page} - to prevent the stack from overwriting the
+heap, as shown in Figure~\ref{fig:threadMemoryModel}, and which is typically
+\SI{4}{\kibi\byte} in size. \SI{512}{\kibi\byte} is a fairly large stack
+allocation, due to the fact that it is impossible to know at 'spawn time' how
+much stack memory a thread is going to use, and it is not possible to resize the
+stack at a later time. Assuming we were to use a single thread for each client,
+a broker with 1000 clients would consume roughly \SI{512}{\mebi\byte} of memory
+\emph{just} for the client threads.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/stack-growth}
+  \caption{Goroutine memory model \cite{performanceWithoutTheEventLoop}}
+  \label{fig:goMemoryModel}
+\end{figure}
+
+By comparison, Goroutines start life with a small stack, allocated from the heap
+memory (Figure~\ref{fig:goMemoryModel}). Rather than using a guard page to
+detect stack overflow, each time the function is called, a small piece of code
+tests that there is sufficient stack space for the function to run. In the event
+that there is insufficient space a new, bigger stack is allocated from the heap,
+copy the contents of the old stack over, and free the original stack memory.
+This resizing is possible because Go allocates stack space within the heap
+itself, rather than a separate chunk of memory. Because resizing is possible, Go
+can afford to allocate a much smaller initial stack for Goroutines, as the
+penalty for stack overflow is a (relatively mild) performance hit, rather than
+an application crash under the previous model
+(Figure~\ref{fig:threadMemoryModel}). As of Go 1.4, the default starting size of
+a Goroutines stack is
+\SI{2}{\kibi\byte}\footnote{\url{https://golang.org/doc/go1.4\#runtime}}. Using
+the same example from above, a 1000-client broker using Goroutines would require
+\SI{2}{\mebi\byte} of memory, or a $\sim250\%$ saving over the traditional
+thread model.
+
+\paragraph{Context switching} \mbox{}\\
+
+\todo[inline]{Message broker functions - blocking vs non-blocking IO}
 
 \todo[inline]{GoRoutines/Channels etc.}
