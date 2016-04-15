@@ -435,6 +435,20 @@ thread model.
 
 \paragraph{Context switching} \mbox{}\\
 
+Context switching occurs when a thread that is in the process of being executed,
+is replaced with a 'sleeping' thread by the operating system scheduller. If
+these two threads belong to seperate processes, this can be a relatively
+expensive operation, as processes operate with entirely seperate memory spaces.
+The operating system therefore needs to:
+\begin{itemize}
+  \item Select the next thread to occupy the CPU from the queue of waiting
+  threads, using a thread-schedulling algorithm (For example: \gls{fifo},
+  \gls{lru})
+  \item Store the current contents of the CPU registers, and restore the values
+  used by the new process.
+  \item
+\end{itemize}
+
 \todo[inline]{Message broker functions - blocking vs non-blocking IO}
 
 \todo[inline]{GoRoutines/Channels etc.}
