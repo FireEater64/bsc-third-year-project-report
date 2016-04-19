@@ -446,8 +446,42 @@ The operating system therefore needs to:
   \gls{lru})
   \item Store the current contents of the CPU registers, and restore the values
   used by the new process.
-  \item
+  \item (In most modern CPUs) flush the \gls{tlb}\cite{taggedTLB}. This can
+  impact the speed of subsequent memory accesses, as the cache of
+  memory-address-to-page-mappings will be empty when the new thread starts
+  running.
 \end{itemize}
+
+The time costs of context switching are hard to quantify, as they can vary
+wildly depending on the hardware platform, and \gls{os}. Performance
+numbers for modern hardware tend to be of the order of 10000's of switches per
+second\footnote{Though again, this depends heavily on the memory access patterns
+of the running program}.
+
+Go moves the schedulling of Goroutines out of the operating system kernel, and
+into userspace. The Go runtime multiplexes Goroutines onto \gls{os}
+threads\footnote{The number of which can be set with the \textit{GOMAXPROCS}
+environment variable}, and chooses which Goroutine to execute next independantly
+of the \gls{os}. This allows the Go runtime scheduller to cooperatively schedule
+the switching of Goroutines at well-defined points in time. Some examples of
+this are\cite{performanceWithoutTheEventLoop}:
+
+\begin{itemize}
+  \item Channel send and receive operations, if those operations would block (the channel is full).
+  \item Blocking system calls (File and network operations).
+  \item After being stopped for garbage collection.
+  \item After adding a new Goroutine to the scheduler.
+\end{itemize}
+
+These can be broadly categorised as locations where a currently running
+Goroutine cannot continue its work until it has more data, or more space to put
+data. The fact that the scheduller behaviour is both deterministic, and
+context-aware means that it can make informed decisions about the best time to
+interrupt a currently running thread, whereas the system scheduler will preempt
+a running thread at any time (which might be midway through a calculation). This
+also means that Go can intelligently choose which registers are in use by the
+running Goroutine, and need to be saved as part of the context-switch, whereas
+the \gls{os} scheduler will typically blindly save all registers\todo{Cite}.
 
 \todo[inline]{Message broker functions - blocking vs non-blocking IO}
 
