@@ -16,7 +16,7 @@ format is crucial. Broker metrics such as:
   \item Messages/second (broken down by topic)
   \item (Average) End-to-end latency for each message
   \item Memory/Disk usage
-  \item CPU utilization
+  \item CPU utilisation
   \item Pending messages
   \item Unacknowledged messages
   \item Total messages processed
@@ -30,13 +30,98 @@ And client metrics such as:
   \item Messages lost
 \end{itemize}
 
-Should be easily accessible, and visualized.
+Should be easily accessible, and visualised. The presentation and metrics
+collection for gamq consists of the following components:
+
+\subsection{StatsD}
+\label{sub:StatsD}
+
+StatsD is an open-source statistics daemon, written by developers at Etsy in
+2010\cite{statsd}, and which has seen widespread adoption by infrastructure
+teams ever since. StatsD aims to define a simple protocol
+(Listing~\ref{lst:statsdSchema}) for sending statistics over the network, and
+make it simple to aggregate and store those metrics for real-time analysis.
+StatsD can differentiate between metrics of different types:
+
+\begin{listing}
+  \centering
+  \mintinline{text}{metricname:1|c}
+  \caption{A simple counter metric, exactly as it would appear inside a network packet}
+  \label{lst:statsdSchema}
+\end{listing}
+
+\begin{description}
+  \item[Counters] A simple counter that can be incremented or decremented. An
+  example use case could be the number of messages sent through a broker.
+  \item[Timing] The amount of time taken to complete a task. An example could be
+  the amount of time taken to process a message.
+  \item[Gauges] An arbitrary value, stored until it is superseded by a new
+  value. An example of this could be the number of connections open to the
+  broker at a single point in time.
+\end{description}
+
+These packets can be sent over the network as either TCP or UDP packets. Packets
+can contain multiple metrics, separated with newline characters
+(Listing~\ref{lst:statsdMultiplePackets}), which can greatly improve the
+efficiency of the transfer, as the size of each metric (the order of a few
+bytes) is far below the maximum capacity of a single packet.\footnote{The
+typical \gls{mtu} of Ethernet networks is ~1500 bytes} Gamq uses the UDP
+protocol by default (although this is configurable, see
+Section~\ref{sec:Configuration} for details), as the cost of sending UDP packets
+is very low cost when compared to TCP, and we do not require the deliverability
+guarantees of TCP (metrics are non-critical). Metrics are typically sent over a
+\gls{lan}, where packet loss is usually quite low. In the event that is it not,
+but the packet loss is uniform, the loss of some metrics should not affect the
+overall data trend.
+
+\begin{listing}
+  \centering
+  \mintinline{text}{gorets:1|c\nglork:320|ms\ngaugor:333|g\nuniques:765|s}
+  \caption{Multiple metrics in a single packet}
+  \label{lst:statsdMultiplePackets}
+\end{listing}
+
+\subsection{InfluxDB}
+\label{sub:InfluxDB}
+
+InfluxDB is an open-source, NoSQL database, optimised for the storage and
+retrieval of \gls{time-series data}. Influx is part of a family of databases
+designed to store (amongst other things) a large amount of metrics data at very
+high speed (the order of millions of events per second), which also includes
+\href{http://graphite.wikidot.com/}{Graphite} and
+\href{http://opentsdb.net/}{OpenTSDB}. InfluxDB was chosen for this project due
+to its maturity (compared to OpenTSDB) and performance (compared to
+Graphite/Carbon).
+
+\subsection{Grafana}
+\label{sub:Grafana}
+
+\href{http://grafana.org/}{Grafana} is an open-source visualisation tool for
+\gls{time-series data}, typically that which is produced by Internet
+infrastructure and application analytics. Developed by a consortium of Internet
+companies as a modern replacement for the previously popular
+\href{https://github.com/graphite-project/graphite-web}{Graphite-Web} project.
+Grafana can visualise \gls{time-series data} from a variety of data-sources,
+such as the ElasticSearch, the aforementioned Graphite and, most importantly,
+InfluxDB.
+
+\missingfigure[figcolor=white]{Grafana screenshot}
+
+\subsection{Docker}
+\label{sub:Docker}
+
+Gamq is designed to send StatsD messages (Section~\ref{sub:StatsD}) across the
+network. In a production environment, these would be sent to the above software
+stack, running on a separate server in the datacenter. In a development
+environment, the metrics stack could be run on a development server, or the
+developers local machine. The configured stack should therefore be as portable
+as possible, to make development as simple as possible. \todo{Docker description}
 
 \section{Configuration}
 \label{sec:Configuration}
 
 As with most pieces of software - there are situations where the default
-behavior of a message broker requires adjustment to suit its operating
+behaviour of a message broker requires adjustment to suit its operating
 environment. One example of this is the network port that the broker operates
 on, and which other applications will connect to in order to exchange messages.
 Whilst the default port (48879\footnote{A number chosen due to its memorable
