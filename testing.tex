@@ -14,12 +14,101 @@
 \subsection{TravisCI}
 \label{sub:TravisCI}
 
-\todo[inline]{.travis.yml walkthrough/build history}
+\missingfigure{Travis.CI screenshot}
+
+Despite my initial plan being to set up and host most of my Continuous
+Integration infrastructure myself, it became clear after an initial trial that
+it would be far easier for me to ensure build repeatability/speed if I used a
+cloud-based CI service (some of the reasons for which are detailed below). With
+this in mind, I elected to use the popular and excellent
+\href{https://travis-ci.org/}{Travis CI} - which provides a free tier for
+open-source projects such as mine. Setup was as simple as adding a `.travis.yml`
+file to my project, and enabling my GitHub repo for builds on the Travis CI
+admin panel. My initial .travis.yml file can be seen in
+Listing~\ref{lst:initialTravis}, and the latest version is available
+\href{https://github.com/FireEater64/gamq/blob/master/.travis.yml}{on GitHub}.
+There are a multitude of configurable options available\footnote{More
+information on the contents of .travis.yml files can be found in their
+\href{https://docs.travis-ci.com/}{excellent documentation}.}, but my initial
+configuration in Listing~\ref{lst:initialTravis} consisted of only three:
+
+\begin{listing}
+  \centering
+  \begin{minted}[frame=single,framesep=10pt]{YAML}
+language: go
+
+go:
+  - 1.3
+  - 1.4
+  - tip
+
+script: go test -v ./... -bench=.
+  \end{minted}
+  \caption{Initial .travis.yml}
+  \label{lst:initialTravis}
+\end{listing}
+
+\begin{description}
+  \item[Language] Defines the language of the project being built - in this case
+  \href{https://golang.org/}{GoLang}. TravisCI builds (usually) take place
+  inside \href{https://www.docker.com/what-docker}{Docker containers}, with the
+  'language' section of configuration dictating which pre-built container is
+  used for this particular build. In this case, a language value of 'go' will
+  ensure that the build container contains all of the binaries and environment
+  variables required for building and running GoLang projects.
+  \item[Go] This section defines different versions of the go compiler you wish
+  to build your product on. When code is checked in - Travis will spin up a
+  separate container for each version specified, and run your complete test
+  suite inside each container in parallel. This feature is known as the
+  '\href{https://docs.travis-ci.com/user/customizing-the-build/#Build-Matrix}{build
+  matrix}', and is both \emph{incredibly} useful for ensuring software
+  consistency on multiple different compilers/runtimes (especially useful for
+  interpreted languages such as Java), and something which would be hard to
+  replicate outside of a containerised build environment (i.e. if I'd chosen to
+  self-host my CI).
+  \item[Script] Any custom commands you wish to be run as part of the build.
+  Travis contains (pun intended) a standard build script for most languages
+  (which are selected via the 'language' configuration detailed above), however
+  builds invariably require additional scripts/commands to be run as well - some
+  example use cases could be to run additional tests, or deploy build binaries
+  to an artifact repository. In this case, the commands I specified execute both
+  my unit/integration test suite, and my benchmark suite (more details below).
+\end{description}
 
 \subsection{Coveralls}
 \label{sub:Coveralls}
 
-\todo[inline]{Coverage history/details}
+\missingfigure{Coveralls screenshot}
+
+One important (though not definitive) metric associated with unit/integration
+tests is \emph{code coverage}, which is the total percentage of the code-base
+that is executed when running unit tests. This is a useful metric to keep an eye
+on, as it helps\footnote{Though doesn't always} indicate which sections of code
+are susceptible to bugs as a result of not being tested. Go's built in test
+runner is capable of producing code coverage reports during test runs, however I
+chose to use an open source tool called
+'\href{https://github.com/axw/gocov}{gocov}', as it allowed me to send the code
+quality metrics produced my build to another online service,
+\href{https://coveralls.io/}{coveralls}. The reasons behind doing this, rather
+than relying on the build-in HTML report were:
+
+\begin{description}
+  \item[Visibility] Publishing my code quality metrics in an easily accessibly,
+  publicly visible website (as well as the front page of my GitHub project),
+  rather than hiding them away in build logs helps to 'keep me honest', as well
+  as '\textit{\gls{gamify}}' the process of driving up coverage.
+  \item[Monitoring] Coveralls allows me to set 'thresholds' for coverage
+  metrics, and will fail the build if these are not adhered to. For example, my
+  build will fail if the coverage of the checked in code is even 0.1\% less than
+  that of the previous successful build.
+\end{description}
+
+The code quality metrics for my project are available
+\href{https://coveralls.io/github/FireEater64/gamq?branch=master}{on Coveralls},
+as well as being summarised in the
+\href{https://github.com/FireEater64/gamq/blob/master/README.md}{README for my
+project on GitHub}\(Figure~\ref{fig:readmeStatus} \).
+
 
 \section{Environmental Testing}
 \label{sec:Environmental Testing}
