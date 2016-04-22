@@ -36,12 +36,12 @@ collection for gamq consists of the following components:
 \subsection{StatsD}
 \label{sub:StatsD}
 
-StatsD is an open-source statistics daemon, written by developers at Etsy in
-2010\cite{statsd}, and which has seen widespread adoption by infrastructure
-teams ever since. StatsD aims to define a simple protocol
-(Listing~\ref{lst:statsdSchema}) for sending statistics over the network, and
-make it simple to aggregate and store those metrics for real-time analysis.
-StatsD can differentiate between metrics of different types:
+StatsD is an open-source statistics daemon, written by developers at
+Etsy\footnote{\url{https://www.etsy.com/uk/}} in 2010\cite{statsd}, and which
+has seen widespread adoption by infrastructure teams ever since. StatsD aims to
+define a simple protocol (Listing~\ref{lst:statsdSchema}) for sending statistics
+over the network, and make it simple to aggregate and store those metrics for
+real-time analysis. StatsD can differentiate between metrics of different types:
 
 \begin{listing}
   \centering
@@ -151,10 +151,10 @@ Listing~\ref{lst:gamqHelpOutput}
 Whilst specifying arguments on the command line gives flexibility, there are
 certain options that, whilst configurable, are either too numerous, or change
 too infrequently to justify command-line flags. One major example of this is the
-log configuration for the broker - specifying the format, and location of
-messages logged using the \href{https://github.com/cihub/seelog}{Seelog}
-library. An example log configuration can be seen in
-Listing~\ref{lst:seelogConfig}.
+log configuration for the broker - an \gls{xml} file specifying specifying the
+format, and location of messages logged using the
+\href{https://github.com/cihub/seelog}{Seelog} library. An example log
+configuration can be seen in Listing~\ref{lst:seelogConfig}.
 
 \begin{listing}[ht]
   \centering

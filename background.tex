@@ -5,15 +5,15 @@
 \label{sec:messages}
 
 In today's interconnected world, computer programs rarely exist in a vacuum.
-Rather, they form one small part of a much larger \gls{soa} -
+Rather, they typically form one small part of a much larger \gls{soa} -
 consisting of multiple services, jobs and scripts, all exchanging information in
 the form of messages. These messages may adhere to a standard data-interchange
-format (for example, \gls{json}). They may correspond to an agreed upon
-specification (for example, \href{https://goo.gl/rjuP4C}{IEEE 1671-2010}).
+format (for example, \gls{json} or \gls{xml}). They may correspond to an agreed
+upon specification (for example, IEEE 1671-2010\cite{atml}).
 Or they may simply be blobs of binary information transmitted over the network -
-completely subject to the interpretation of the sender and received.
-At a fundamental level, though, a message is simply a collection of bytes, to be
-transmitted from point A, to point B.
+completely subject to the interpretation of the sender and receiver. At a
+fundamental level, though, a message is simply a collection of bytes, to be
+transmitted from point A, to point B.\todo{Why is this a good thing?}
 
 \section{Message Brokers}
 \label{sec:brokers}
@@ -30,13 +30,13 @@ examine the simplest method of transmitting bytes between two applications -
 directly transmitting messages between two applications (shown in
 Figure~\ref{fig:tikz:directMessaging}).
 
-In this example, the application 'A' wishes to transmit a simple message (a
-sequence of bytes) to application 'B', and does so in the simplest method
-possible. This could involve making an \gls{rpc}, opening a Unix/\gls{tcp}
-socket, or making a HTTP web request - for the purposes of this illustration the
-exact mechanism by which bytes are transferred is unimportant, the fact that the
-transfer takes place \emph{directly} between the two parties is all that
-matters.
+In this example, the application 'A' wishes to transmit a simple message
+(Section~\ref{sec:messages}) to application 'B', and does so in the simplest
+method possible. This could involve making an \gls{rpc}, opening a
+Unix/\gls{tcp} socket, or making a HTTP web request. For the purposes of this
+illustration the exact mechanism by which bytes are transferred is unimportant,
+the fact that the transfer takes place \emph{directly} between the two parties
+is all that matters.
 
 \begin{figure}[ht]
   \centering
@@ -55,15 +55,15 @@ services)\footnote{Assuming each service needs to talk to all other services}.
 Managing this complexity is difficult in a number of ways:
 
 \begin{description}
-  \item[Service discovery] \hfill \\
-  Firstly, each program requires some mechanism of discovering an endpoint for
-  all the other services it wishes to communicate with. Typically, this is
-  either provided via configuration shipped with the program, or is available
-  from some central repository. There are also, however, problems involved with
-  keeping this information up to date - as the services with which a client
-  machine communicates may not always be available on the same endpoints all of
-  the time (Possibly due to dynamic network configuration via DHCP, or the
-  migration of a service between servers).
+  \item[Service discovery] \hfill \\ Firstly, each program requires some
+  mechanism of discovering an endpoint for all the other services it wishes to
+  communicate with. Typically, this is either provided via configuration shipped
+  with the program, or is available from some central repository\footnote{Such
+  as \href{https://zookeeper.apache.org/}{Apache Zookeeper}}. There are also,
+  however, problems involved with keeping this information up to date - as the
+  services with which a client machine communicates may not always be available
+  on the same endpoints all of the time (Possibly due to dynamic network
+  configuration via DHCP, or the migration of a service between servers).
   \item[Number of connections] \hfill \\
   As the number of services a program communicates with increases, so do the
   number of connections said program is required to maintain. This could be a
@@ -74,17 +74,17 @@ Managing this complexity is difficult in a number of ways:
   connections\footnote{Although this is less of a problem with modern hardware:
   \url{http://c10m.robertgraham.com/p/manifesto.html}}\todo{Do we need a section
   on network protocols?}.
-  \item[Readiness to receive] \hfill \\
-  When a service sends a message across the network, the assumption is that the
-  recipient of the message is ready to receive it.  However, this is not always
-  the case. The recipient may be performing some other task when the message is
-  sent - or may even be busy processing the previous message it received. There
-  are several programming techniques which can be employed to reduce the
-  possibility of lost messages - relying on  the built-in congestion-control
-  protocols, such as those present in \gls{tcp}, and writing multithreaded or
-  asynchronous (Section~\ref{sub:concurrencyparallelism}) code. However,
-  more often than not, application developers end up having to write code to
-  handle communicating with services that are (for whatever reason) unavailable.
+  \item[Readiness to receive] \hfill \\ When a service sends a message across
+  the network, the assumption is that the recipient of the message is ready to
+  receive it.  This is not always the case, however. The recipient may be
+  performing some other task when the message is sent - or may even be busy
+  processing the previous message it received. There are several programming
+  techniques which can be employed to reduce the possibility of lost messages -
+  relying on  the built-in congestion-control protocols, such as those present
+  in \gls{tcp}\cite{rfc2581}, and writing multithreaded or asynchronous
+  (Section~\ref{sub:concurrencyparallelism}) code. However, more often than not,
+  application developers end up having to write code to handle communicating
+  with services that are (for whatever reason) unavailable.
 \end{description}
 
 \begin{figure}[ht]
@@ -126,9 +126,9 @@ queue or topic). Subscribers register their interest ('subscribe') to these
 named destinations, and receive all messages sent to said destinations, in a
 manner dependent on whether the destination is a queue (see
 Section~\ref{sub:queues}) or a topic (see Section~\ref{sub:topics}). This
-pattern has several advantages, such as the ability for pub/sub infrastructure
-to scale up to handle message routing for an entire datacenter, with relatively
-little complexity. These advantages are explored in detail in
+pattern has several advantages - pub/sub infrastructure can be scaled up to
+handle message routing for an entire datacenter, with relatively little
+complexity. These advantages are explored in detail in
 Section~\ref{sec:brokers}. The disadvantages of the pub/sub model are associated
 with it's loose coupling - the model itself does not define a message format,
 leaving the creation and updating of message contracts to the application
@@ -139,21 +139,23 @@ can also be an advantage}.
 \label{sub:queues}
 
 Queues are a standard feature of most programming languages, a core Computer
-Science construct, and familiar to anyone who has ever been to a Post Office.
-Queues are a \gls{fifo} data-structure, which delivers messages in the order
-they were inserted into the queue. The other important features of queues in
-terms of the pub/sub model, is that they can have multiple publishers, and
-multiple subscribers. In the event of a queue having multiple subscribers,
-messages are typically delivered in a 'round-robin' fashion - that is to say,
-the next subscriber to receive a message will be the one who is ready to receive
-a message that has received a message least recently.
+Science construct, and familiar to anyone who has ever been to a Post Office(!).
+Queues are a \gls{fifo} data-structure, which deliver messages in the order
+they were inserted into the queue. The other important features of queues (in
+terms of the pub/sub model), is that they can have multiple publishers, and
+multiple subscribers. In the event of a queue having multiple subscribers, each
+message is delivered to a single subscriber.  The order in which messages are
+distributed amongst subscribers is typically a 'round-robin'
+pattern\footnote{Although other variants also exists} - that is to say, the next
+subscriber to receive a message will be the one who is ready to receive a
+message that has received a message least recently.
 
-A typical use of a Message
-Queue may be the distribution of job information, where messages consist of
-configuration for jobs, and worker applications subscribe to the queue this job
-information is posted on. Once a worker has finished the job it's working on, it
-received information for the next job off the queue. Each job is only ever
-received by a single worker.\todo{Example code/diagram. Make this clearer}
+A typical use of a Message Queue may be the distribution of job information,
+where messages consist of configuration for jobs, and worker applications
+subscribe to the queue this job information is posted on. Once a worker has
+finished the job it's working on, it received information for the next job off
+the queue. Each job is only ever received by a single worker.\todo{Example
+code/diagram. Make this clearer?}
 
 \subsection{Topics}
 \label{sub:topics}
@@ -162,13 +164,16 @@ Similar to Queues (Section~\ref{sub:queues}), topics are \gls{fifo} structures.
 The key difference between topics and queues, is that whist queues deliver each
 message to a single subscriber, topics deliver each message to \textbf{every}
 subscriber. Each subscriber therefore receives a copy of each message sent to
-the topic. A common use of topics, is the updating of information in a
-distributed cache. Suppose a number of mobile phones maintained a cache of stock
-prices, and rely on a pub/sub mechanism to receive the latest prices. Obviously,
-a queue would be unsuitable for such a task, as it would only update the price
-for a \textbf{single} subscriber. A topic would ensure that each stock price
-published, would be sent to every mobile phone - updating the price for all
-subscribers.\todo{Example code/diagram. Make this clearer}.
+the topic.
+
+A common use of topics, is the updating of information in a distributed cache.
+Suppose a number of mobile phones maintained a cache of stock prices, and
+connect to pub/sub infrastructure to receive the latest prices. Obviously, a
+queue would be unsuitable for such a task, as pushing a new stock price onto a
+queue would only update the price for a \textbf{single} subscriber. A topic
+would ensure that each stock price published would be sent to every mobile phone -
+updating the price for all subscribers.\todo{Example code/diagram. Make this
+clearer?}.
 
 \subsection{Existing Brokers}
 \label{sub:Existing Brokers}
@@ -218,6 +223,11 @@ semantics with which \glspl{rpc} could be executed:
     insignificant next to the risk that the refresh does not happen at all.
 \end{description}
 
+Most brokers typically choose the \textit{at least once} model when using
+\gls{tcp}, and \textit{at most once} when using \gls{udp}\footnote{Though again,
+this varies between implementations} - as the delivery models fit the
+characteristics of their respective delivery protocols.
+
 \subsection{Network Bandwidth Utilisation}
 \label{sub:Network Bandwidth Utilization}
 
@@ -255,7 +265,8 @@ affect this include:
 \begin{itemize}
   \item Message compression
   \item Message size
-  \item IP Protocol
+  \item \gls{ip}
+  \item Message protocol
   \item Network conditions (requiring re-transmits/computing checksums etc.)
 \end{itemize}
 
@@ -266,16 +277,11 @@ Finally - the most obvious performance metric of a broker - the number of
 messages it can process per second. This is impacted by all of the above
 requirements, and can be maximised through the use of small, cheap messages,
 with as little overhead as possible. Network protocol can make a large
-difference here - with something like UDP being extremely cheap to send over the
-wire (if inherently unreliable).
+difference here - with something like \gls{udp} being extremely cheap to send over the
+wire (if inherently unreliable) compared with \gls{tcp}.
 
 \section{GoLang}
 \label{sec:GoLang}
-
-\todo[inline]{Overview of GoLang}
-
-\subsection{What is GoLang?}
-\label{sub:What is GoLang?}
 
 As mentioned in the introduction (Section~\ref{sec:background}), GoLang is a
 compiled, statically-typed language developed in part out of the authors
@@ -287,17 +293,18 @@ prime example being the long compilation times involved with working in
 languages such as C++\footnote{\url{http://stackoverflow.com/a/318440/1657432}}.
 One of the founding principals of Go was simplicity, and ease of
 maintainability\cite{lessIsExponentiallyMore} - even at the expense of
-performance in some areas. As such, Go has a relatively light core feature-set
-compared with most other 'network-oriented languages', and contains creature
+performance in some areas\footnote{Although GoLang does perform well in
+benchmarks, due to its compiled nature\cite{benchmarksGame}}. As such, Go has a
+relatively light core feature-set compared with most other 'network-oriented
+languages'\footnote{Such as Java, .NET, Python and Ruby}, and contains creature
 comforts not found in other performance-oriented languages like C++, such as
 Garbage Collection - something which has typically been the sole preserve of
 languages with an interpreted runtime, such as Java, Ruby and Python. However,
 due to its nature as a compiled language, Go still outperforms these
-'traditional languages' in a number of standard
-benchmarks\footnote{\url{https://benchmarksgame.alioth.debian.org/u64q/go.html}}
+'traditional languages' in a number of standard benchmarks\cite{benchmarksGame}
 which, combined with the multitude of built-in concurrency features
 (Section~\ref{sub:golangConcurrency}) make Go an extremely compelling language
-for developing networked infrastructure code, such as a message broker.
+for developing networked infrastructure software, such as a message broker.
 
 \subsection{Concurrency vs Parallelism}
 \label{sub:concurrencyparallelism}
@@ -308,12 +315,10 @@ Confusion often exists as to the relationship between parallelism and
 concurrency, thanks in part to their often similar dictionary definitions:
 
 \begin{description}
-  \item[Concurrent] \hfill \\
-  Going on side by side, as proceedings; occurring together, as events or
-  circumstances; (\textit{source: OED})
-  \item[Parallelism] \hfill \\
-  Concurrent or contemporary; existing in the same period of time.
-  (\textit{source: OED})
+  \item[Concurrent] \hfill \\ Going on side by side, as proceedings; occurring
+  together, as events or circumstances;\cite{oed}
+  \item[Parallelism] \hfill \\ Concurrent or contemporary; existing in the same
+  period of time.\cite{oed}
 \end{description}
 
 However, as they relate to Computer Science, parallelism and concurrency are not
@@ -323,18 +328,22 @@ independent of other tasks and which is interrupt-able. Concurrent tasks
 the potential to decrease the real-world-time taken to perform a set of actions,
 even if executed on single-threaded (non-parallel) hardware. \\
 
-An real-world analogy - suppose the organisers of a draughts tournament wish to
-give 10 amateur players the opportunity to play a game with a professional
+A real-world analogy - suppose the organisers of a draughts tournament wish to
+give 10 amateur players each the opportunity to play a game with a professional
 player, and wish to conduct these games in as time-efficient a manner as
-possible. There are multiple ways the tournament could be run. \\
+possible. There are multiple ways such a tournament could be run. \\
+
+\paragraph{Sequentially}
 
 The professional player could sit down with each of the ten amateurs, and play
 him/her to completion - before moving on to the next amateur. This is synonymous
 with \textbf{sequential} code execution. Assuming each game takes 10 minutes to
 complete, and that the time taken to transition from one game to another is 6
-seconds. $$6 \text{seconds} * 10 \approx 1 \text{minute}$$
+seconds. $$6 \text{ seconds} * 10 \approx 1 \text{ minute}$$
 The time taken to complete the tournament is therefore 101 minutes (1 hour, 41
 minutes). This is the worst case scenario. \\
+
+\paragraph{Concurrently}
 
 An alternative method of running the tournament would be to get the professional
 to play all 10 games \textbf{concurrently}. In this scenario, she would play
@@ -347,9 +356,19 @@ takes 45 seconds to take his/her turn. Based on the 10 minute timer from the
 serial game - each game will last for 11 rounds.
 $$(10 * 60) / (45 + 6) \approx 11$$
 The total time for the game is therefore
-$$(11 * \text{time\_taken\_per\_move} + 11 * \text{transition\_time}) = (11 * 51) + (11 * 60) = 1221 \text{seconds}$$
+
+\begin{equation}
+  \begin{split}
+    (11 * \text{time taken per move}) + (11 * \text{transition time}) \\
+    &= (11 * 51) + (11 * 60) \\
+    &= 1221 \text{ seconds}
+  \end{split}
+\end{equation}
+
 This equates to 20 minutes, and 21 seconds - a dramatic improvement over the
 sequential method. \\
+
+\paragraph{Parallel}
 
 Now we can look at the effect of simple \textbf{parallelism} on the tournament
 time. Assuming we return to the sequential tournament method, but invite a
@@ -360,12 +379,94 @@ However, note that we not only require twice as many 'resources' (in this case,
 professional draughts players) as before, but took \emph{longer} to complete the
 tournament than the concurrent method. \\
 
-\todo{Mention (Javascript) callbacks} \\
+\paragraph{Concurrently Parallel}
 
-\todo[inline]{Async IO vs multiple threads}
+Introducing another professional player (as above) into a concurrent game again
+involves splitting the 10 amateur players into two groups of 5. Games are
+running in parallel across the two groups, but within the groups they are run in
+a concurrent manner.
+
+Games in a concurrent group will complete in
+
+\begin{equation}
+  \begin{split}
+    (11 * \text{time taken per move}) + (11 * \text{transition time across 5 players}) \\
+    &= (11 * 51) + (11 * 30) \\
+    &= 600 + 330 = 930 \text{ seconds}
+  \end{split}
+\end{equation}
+
+This equates to roughly 15 minutes 30 seconds, or the fastest time so far - and
+represents the approach GoLang takes to parallelism (concurrent functions,
+multiplexed across operating system threads -
+Section~\ref{sub:golangConcurrency}).
 
 \subsection{Concurrency in GoLang}
 \label{sub:golangConcurrency}
+
+GoLang has a rather unique set of concurrency features, which aim to make it
+simple to design concurrent functions, which can be multiplexed across multiple
+\gls{os} threads, to take advantage of hardware parallelism (with the benefits
+described in Section~\ref{sub:concurrencyparallelism}). The main two language features we'll be using are:
+
+\paragraph{Goroutines}
+
+Goroutines are, as mentioned above, concurrently executing functions - often
+described as 'lightweight threads' by the languages creators\todo{Citation}.
+Because they are managed by the Go runtime, Goroutines can be \gls{preempted} by
+the Go runtime, as described in \ref{sub:whyConcurrency}. This means that,
+Goroutines never block whilst waiting for IO - which is extremely important in
+networked environments (such as a messaging broker). Example code and output are
+given in Listings~\ref{lst:goroutineDemo} and \ref{lst:goroutineDemoOutput}
+respectively.
+
+\begin{listing}[ht]
+  \centering
+  \inputminted{go}{code/snippets/goroutineDemo.go}
+  \caption{Goroutine demo\cite{goByExample}}
+  \label{lst:goroutineDemo}
+\end{listing}
+
+\begin{listing}[ht]
+  \centering
+  \inputminted{bash}{code/goroutineDemoOutput}
+  \caption{Goroutine demo output\cite{goByExample}}
+  \label{lst:goroutineDemoOutput}
+\end{listing}
+
+\paragraph{GoChannels}
+
+Channels are a conduit for sending and receiving values, much like an internal
+queue (Section~\ref{sub:queues}). These are typically (but not always) used for
+communicating safely between executing GoRoutines in an asynchronous manner.
+Suppose \textit{goroutine1} wishes to communicate with \textit{goroutine2} on
+system with a single \gls{os} thread. When \textit{goroutine1} is scheduled for
+execution, it sends a message to the channel it shares with \textit{goroutine2}.
+\textit{goroutine1} then completes its current task, and is \gls{preempted} by
+the scheduler. \textit{goroutine2} has been asleep, waiting for a value on the
+channel - and is now placed on the scheduler queue, since it has a value to read
+from the channel. At some point in the future, \textit{goroutine2} is scheduled
+for execution, and receives the value sent to it by \textit{goroutine2}. This
+entire exchange is completely thread-safe, since no memory is shared between the
+two GoRoutines.\todo{Code/Diagram example?}
+
+
+Example code and output are given in Listings~\ref{lst:gochannelDemo} and
+\ref{lst:gochannelDemoOutput} respectively.
+
+\begin{listing}[ht]
+  \centering
+  \inputminted{go}{code/snippets/gochannelDemo.go}
+  \caption{Gochannel demo\cite{goByExample}}
+  \label{lst:gochannelDemo}
+\end{listing}
+
+\begin{listing}[ht]
+  \centering
+  \inputminted{bash}{code/gochannelDemoOutput}
+  \caption{Gochannel demo output\cite{goByExample}}
+  \label{lst:gochannelDemoOutput}
+\end{listing}
 
 \subsection{Why do we need concurrency?}
 \label{sub:whyConcurrency}
@@ -415,8 +516,9 @@ a broker with 1000 clients would consume roughly \SI{512}{\mebi\byte} of memory
   \label{fig:goMemoryModel}
 \end{figure}
 
-By comparison, Goroutines start life with a small stack, allocated from the heap
-memory (Figure~\ref{fig:goMemoryModel}). Rather than using a guard page to
+In place of a traditional multi-threaded approach, we can use a concurrent
+design in GoLang. A Goroutine starts life with a small stack, allocated from the
+heap memory (Figure~\ref{fig:goMemoryModel}). Rather than using a guard page to
 detect stack overflow, each time the function is called, a small piece of code
 tests that there is sufficient stack space for the function to run. In the event
 that there is insufficient space a new, bigger stack is allocated from the heap,
@@ -436,13 +538,13 @@ thread model.
 \paragraph{Context switching} \mbox{}\\
 
 Context switching occurs when a thread that is in the process of being executed,
-is replaced with a 'sleeping' thread by the operating system scheduller. If
-these two threads belong to seperate processes, this can be a relatively
-expensive operation, as processes operate with entirely seperate memory spaces.
+is replaced with a 'sleeping' thread by the operating system scheduler. If
+these two threads belong to separate processes, this can be a relatively
+expensive operation, as processes operate with entirely separate memory spaces.
 The operating system therefore needs to:
 \begin{itemize}
   \item Select the next thread to occupy the CPU from the queue of waiting
-  threads, using a thread-schedulling algorithm (For example: \gls{fifo},
+  threads, using a thread-scheduling algorithm (For example: \gls{fifo},
   \gls{lru})
   \item Store the current contents of the CPU registers, and restore the values
   used by the new process.
@@ -458,11 +560,11 @@ numbers for modern hardware tend to be of the order of 10000's of switches per
 second\footnote{Though again, this depends heavily on the memory access patterns
 of the running program}.
 
-Go moves the schedulling of Goroutines out of the operating system kernel, and
+Go moves the scheduling of Goroutines out of the operating system kernel, and
 into userspace. The Go runtime multiplexes Goroutines onto \gls{os}
 threads\footnote{The number of which can be set with the \textit{GOMAXPROCS}
-environment variable}, and chooses which Goroutine to execute next independantly
-of the \gls{os}. This allows the Go runtime scheduller to cooperatively schedule
+environment variable}, and chooses which Goroutine to execute next independently
+of the \gls{os}. This allows the Go runtime scheduler to cooperatively schedule
 the switching of Goroutines at well-defined points in time. Some examples of
 this are\cite{performanceWithoutTheEventLoop}:
 
@@ -475,7 +577,7 @@ this are\cite{performanceWithoutTheEventLoop}:
 
 These can be broadly categorised as locations where a currently running
 Goroutine cannot continue its work until it has more data, or more space to put
-data. The fact that the scheduller behaviour is both deterministic, and
+data. The fact that the scheduler behaviour is both deterministic, and
 context-aware means that it can make informed decisions about the best time to
 interrupt a currently running thread, whereas the system scheduler will preempt
 a running thread at any time (which might be midway through a calculation). This

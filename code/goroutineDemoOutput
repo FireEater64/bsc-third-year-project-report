@@ -1,0 +1,10 @@
+$ go run goroutines.go
+direct : 0
+direct : 1
+direct : 2
+goroutine : 0
+going
+goroutine : 1
+goroutine : 2
+<enter>
+done

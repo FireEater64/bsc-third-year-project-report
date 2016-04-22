@@ -6,38 +6,43 @@
 
 Many large, distributed applications (particularly in 'enterprise' environments)
 make extensive use of messaging brokers - software\footnote{Or hardware in some
-cases\cite{solaceappliances}} responsible for passing layer-7 messages between
-services, over the network. Two examples of message brokers are
+cases\cite{solaceappliances}} responsible for passing messages at
+layer-7\footnote{\url{https://support.microsoft.com/en-us/kb/103884}} between
+services, over the network. Two examples of such software are
 \href{http://www.tibco.com/products/automation/enterprise-messaging/enterprise-message-service}{TibcoEMS}
 and \href{https://www.rabbitmq.com/}{RabbitMQ}. These brokers improve the
 software development experience for engineers working on distributed
 applications, by abstracting away the complexities involved with passing
 messages between software running on distributed, heterogeneous hardware - which
-may be seperated by networks operated by multiple different administrators, and
+may be separated by networks operated by multiple different administrators, and
 with less-than-perfect
-qualities.\footnote{\url{https://blogs.oracle.com/jag/resource/Fallacies.html}}. These broker benefits are explored in-depth in Section~\ref{sec:brokers}.
+qualities.\footnote{\url{https://blogs.oracle.com/jag/resource/Fallacies.html}}.
+These broker benefits are explored in-depth in Section~\ref{sec:brokers}.
 
 \href{https://golang.org/}{GoLang} is a modern, cross-platform, open-source
 programming language initially developed by Google, and designed primarily for
 systems programming, with a focus on writing performant, network-oriented
 software, such as \href{https://github.com/kubernetes/kubernetes}{service
 cluster managers}, \href{https://github.com/mholt/caddy}{web-servers} and
-\href{https://github.com/grafana/grafana}{monitoring software}\footnote{Grafana
-is used to provide monitoring and dashboarding for this project - see
-Section~\ref{sec:presentation}}. More information on GoLang can be found in
+monitoring software (such as
+\href{https://github.com/grafana/grafana}{Grafana}\footnote{Which is used to
+provide monitoring and dashboard-ing for this project - see
+Section~\ref{sec:presentation}}). More information on GoLang can be found in
 Section~\ref{sec:GoLang}
 
 \section{Goals}
-This project centers around building an enterprise-style messaging broker,
-as an exercise in designing network-oriented distributed applications using a modern, novel programming language (GoLang), whilst following software design, test and architecture best practices - such as unit-testing, continuous integration, and built-in monitoring.
+This project centres around building an enterprise-style messaging broker, as an
+exercise in designing network-oriented distributed applications using a modern
+programming language (GoLang), whilst following software design, test and
+architecture best practises - such as unit-testing, continuous integration, and
+built-in monitoring.
 
-In (very) broad strokes, my project has the following goals:
+In broad strokes, my project has the following goals:
 
  \begin{itemize}
-   \item Evaluate the impact and usefulness of GoLangs concurrency primitives in
-   constructing and testing a highly performant piece of software.
-   \item Design and build a high-performance, well-tested, stable message broker
-   in GoLang.
+   \item Evaluate the impact and usefulness of GoLang's fairly unique set of
+   concurrency primitives in constructing and testing high performance software.
+   \item Design and build a well-tested, stable message broker in GoLang.
    \item Evaluate the performance and feature-set of my implementation in
-   comparison with popular open-source alternatives.
+   comparison with popular alternatives.
  \end{itemize}
