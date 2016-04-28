@@ -1,0 +1,9 @@
+[mbax2gv2@kilburn ~]$ telnet E-C07KI1839.it.manchester.ac.uk 48879
+Trying 130.88.194.143...
+Connected to E-C07KI1839.it.manchester.ac.uk.
+Escape character is '^]'.
+
+pub abc 123
+this is my message
+it can span multiple lines
+.

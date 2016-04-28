@@ -4,13 +4,21 @@
 \section{Project philosophy}
 \label{sec:Project philosophy}
 
-Brief overview of the open development mentality ().
+One of the learning objectives for this project, was to discover and utilize
+\gls{foss} technologies wherever possible, as well as give back to the
+\gls{foss} community. As such, all of the tooling used in the production of the
+project, as well as the project itself were open-source. The project itself is
+published under the MIT License, which allows anyone to "use, copy, modify,
+merge, publish, distribute, sublicense, and/or sell copies of the Software",
+without restriction.
 
 \section{Presentation interface}
 \label{sec:presentation}
 
 As a (primarily) middleware project - coming up with a compelling presentation
-format is crucial. Broker metrics such as:
+interface is crucial to allowing people to engage with the software, as well as
+providing monitoring capabilities, should it be deployed in a production
+environment. Broker metrics such as:
 
 \begin{itemize}
   \item Messages/second (broken down by topic)
@@ -108,7 +116,7 @@ InfluxDB.
 \missingfigure{Grafana screenshot}
 
 \subsection{Docker}
-\label{sub:Docker}
+\label{sub:dockerDesign}
 
 Gamq is designed to send StatsD messages (Section~\ref{sub:StatsD}) across the
 network. In a production environment, these would be sent to the above software
@@ -168,3 +176,132 @@ configuration can be seen in Listing~\ref{lst:seelogConfig}.
 
 \todo[inline]{Box-level overview of how the code is structured/how messages
 flow through the broker}
+
+\section{Protocol Design}
+\label{sec:protocol}
+
+As a piece of network-connected software - a clear, well-defined protocol is
+essential to allow other networked applications to interact with the messaging
+broker. Although a simple protocol is used in the current implementation, the
+message decoding logic is designed to be somewhat modular, allowing for
+additional protocols to easily be supported. The NATS message
+protocol\cite{natsProtocol} served as an inspiration for gamq - as it showed it
+was possible for text-based protocols to be as performant as customised binary
+protocols, and had a slew of other benfits, such as human-readability, and ease
+of debugging.
+
+The gamq protocol defines several commands, which can be seen in
+Table~\ref{tab:protocol}. These commands are all delimited by \verb|\r\n|, which
+is the telnet standard. The two most frequently used commands (\emph{PUB} and
+\emph{SUB}) are intentionally short to reduce the overhead required to send them
+over the wire - which is especially important as message rate increases. Note
+that whilst all commands listed in the following sections are demonstrated using
+telnet, in reality they would be given programatically, by software wishing to
+send messages to the broker (An example of which can be seen in
+\ref{chap:benchmarkCode})
+
+\begin{table}[H]
+\centering
+\caption{The gamq protocol commands}
+\label{tab:protocol}
+\begin{tabular}{|l|}
+\hline
+Command \\ \hline
+\verb|HELP\r\n|                           \\
+\verb|PUB <queue>\r\n <message>\r\n.\r\n| \\
+\verb|SUB <queue>\r\n|                    \\
+\verb|PINGREQ\r\n|                        \\
+\verb|DISCONNECT\r\n|                     \\
+\verb|SETACK <on/off>\r\n|                \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{HELP}
+\label{sub:helpCommand}
+
+\begin{listing}[H]
+  \centering
+  \inputminted{bash}{code/gamqHelpOutputTelnet}
+  \caption{Output from the gamq HELP command}
+  \label{lst:gamqHelpTelnet}
+\end{listing}
+
+Print the help message (as seen in Listing~\ref{lst:gamqHelpTelnet})
+
+\subsection{PUB}
+\label{sub:pubCommand}
+
+\begin{listing}[H]
+  \centering
+  \inputminted{bash}{code/gamqPubOutput}
+  \caption{Publishing a message to gamq}
+  \label{lst:gamqPubTelnet}
+\end{listing}
+
+Send the given message, to the given queue. In Listing~\ref{lst:gamqPubTelnet},
+we are publishing a message to the queue 'abc'. Note that messages can span
+multiple lines, and are terminated with a single '.', on a line by itself.
+
+\subsection{SUB}
+\label{sub:subCommand}
+
+\begin{listing}[H]
+  \centering
+  \inputminted{bash}{code/gamqSubOutput}
+  \caption{Subscribing to a queue/topic in gamq}
+  \label{lst:gamqSubTelnet}
+\end{listing}
+
+Subscribe to messages posted on the named queue (see Section~\ref{sub:pubsub}).
+Note that in Listing~\ref{lst:gamqSubTelnet}, when we subscribe to the queue
+'abc', we receive the message sent to that queue in
+Section~\ref{sub:pubCommand}.
+
+\subsection{PINGREQ}
+\label{sub:pingreqCommand}
+
+\begin{listing}[H]
+  \centering
+  \inputminted{bash}{code/gamqPingreqOutput}
+  \caption{Pinging the broker through telnet}
+  \label{lst:gamqPingreqTelnet}
+\end{listing}
+
+Ask the broker to return a 'PINGRESP' message. This can be used to check that
+the connection to the broker is active, and the broker is responding to
+messages. Clients should send this at regular intervals.
+
+\subsection{DISCONNECT}
+\label{sub:disconnectCommand}
+
+\begin{listing}[H]
+  \centering
+  \inputminted{bash}{code/gamqDisconnectOutput}
+  \caption{Closing a connection to the broker}
+  \label{lst:gamqDisconnectTelnet}
+\end{listing}
+
+Unsubscribe from all subscribed queues, and close the connection to the broker.
+Whilst the client can achieve the same effect by simply closing its side of a
+TCP connection\todo{\gls{tcp}/\gls{udp} section}, since \gls{udp} is a connectionless protocol, it
+requires an explicit disconnect message (as in
+Listing~\ref{lst:gamqDisconnectTelnet})
+
+\subsection{SETACK}
+\label{sub:setackCommand}
+
+\begin{listing}[H]
+  \centering
+  \inputminted{bash}{code/gamqSetackOutput}
+  \caption{Demonstrating the effect of the SUBACK command}
+  \label{lst:gamqSubackTelnet}
+\end{listing}
+
+Turn the explicit acknowledgement of messages on/off (As demonstrated in
+Listing~\ref{lst:gamqSubackTelnet}). Clients can use the acknowledgement to
+detect potentially lost messages using a timout, and optionally retransmit the
+lost message if at-least-once semantics (Section~\ref{sub:failureHandling}) are
+required. Explicitly acknowledging messages (as opposed to relying on built in
+\gls{tcp} error correction) can have a significant overhead, but can also
+dramatically reduce the number of lost messages when using a protocol with no
+built-in error correction(\gls{udp}).

@@ -1,0 +1,8 @@
+[mbax2gv2@kilburn ~]$ telnet E-C07KI1839.it.manchester.ac.uk 48879
+Trying 130.88.194.143...
+Connected to E-C07KI1839.it.manchester.ac.uk.
+Escape character is '^]'.
+
+disconnect
+telnet> Connection closed.
+[mbax2gv2@kilburn ~]$

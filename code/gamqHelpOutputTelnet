@@ -1,0 +1,13 @@
+[mbax2gv2@kilburn ~]$ telnet E-C07KI1839.it.manchester.ac.uk 48879
+Trying 130.88.194.143...
+Connected to E-C07KI1839.it.manchester.ac.uk.
+Escape character is '^]'.
+
+help
+Available commands:
+        HELP: Prints this text
+        PUB <queue> <message>: Publish <message> to <queue>
+        SUB <queue>: Subscribe to messages on <queue>
+        PINGREQ: Requests a PINGRESP from the server
+        DISCONNECT: Disconnect from the server
+        SETACK <on/off>: Enable/Disable message acknowledgement
