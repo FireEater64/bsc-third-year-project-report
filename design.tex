@@ -148,6 +148,7 @@ Listing~\ref{lst:gamqHelpOutput}
 
 \begin{listing}[ht]
   \centering
+  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
   \inputminted{bash}{code/gamqHelpOutput}
   \caption{Output of running the broker with the --help flag}
   \label{lst:gamqHelpOutput}
@@ -166,6 +167,7 @@ configuration can be seen in Listing~\ref{lst:seelogConfig}.
 
 \begin{listing}[ht]
   \centering
+  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
   \inputminted{xml}{code/gamq/config/logconfig.xml}
   \caption{Example Seelog configuration file for gamq.}
   \label{lst:seelogConfig}
@@ -221,6 +223,7 @@ Command \\ \hline
 
 \begin{listing}[H]
   \centering
+  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
   \inputminted{bash}{code/gamqHelpOutputTelnet}
   \caption{Output from the gamq HELP command}
   \label{lst:gamqHelpTelnet}
@@ -233,6 +236,7 @@ Print the help message (as seen in Listing~\ref{lst:gamqHelpTelnet})
 
 \begin{listing}[H]
   \centering
+  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
   \inputminted{bash}{code/gamqPubOutput}
   \caption{Publishing a message to gamq}
   \label{lst:gamqPubTelnet}
@@ -247,6 +251,7 @@ multiple lines, and are terminated with a single '.', on a line by itself.
 
 \begin{listing}[H]
   \centering
+  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
   \inputminted{bash}{code/gamqSubOutput}
   \caption{Subscribing to a queue/topic in gamq}
   \label{lst:gamqSubTelnet}
@@ -262,6 +267,7 @@ Section~\ref{sub:pubCommand}.
 
 \begin{listing}[H]
   \centering
+  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
   \inputminted{bash}{code/gamqPingreqOutput}
   \caption{Pinging the broker through telnet}
   \label{lst:gamqPingreqTelnet}
@@ -276,6 +282,7 @@ messages. Clients should send this at regular intervals.
 
 \begin{listing}[H]
   \centering
+  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
   \inputminted{bash}{code/gamqDisconnectOutput}
   \caption{Closing a connection to the broker}
   \label{lst:gamqDisconnectTelnet}
@@ -292,6 +299,7 @@ Listing~\ref{lst:gamqDisconnectTelnet})
 
 \begin{listing}[H]
   \centering
+  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
   \inputminted{bash}{code/gamqSetackOutput}
   \caption{Demonstrating the effect of the SUBACK command}
   \label{lst:gamqSubackTelnet}
