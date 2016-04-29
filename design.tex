@@ -4,7 +4,7 @@
 \section{Project philosophy}
 \label{sec:Project philosophy}
 
-One of the learning objectives for this project, was to discover and utilize
+One of the learning objectives for this project, was to discover and utilise
 \gls{foss} technologies wherever possible, as well as give back to the
 \gls{foss} community. As such, all of the tooling used in the production of the
 project, as well as the project itself were open-source. The project itself is
@@ -183,6 +183,48 @@ configuration can be seen in Listing~\ref{lst:seelogConfig}.
   \label{fig:systemBlockDiagram}
 \end{figure}
 
+An overview of the project structure can be seen in
+Figure~\ref{fig:systemBlockDiagram}. The communications between each system
+block (shown in black) are handled via GoChannels
+(Section~\ref{sub:golangConcurrency}). The responsibilities of each block are as
+follows:
+
+\begin{description}[style=nextline]
+  \item[Connection Manager]
+  Handle incoming and open connections for each of the broker protocols, and
+  maintain details of connected clients. The protocol used for client
+  connections is abstracted inside ConnectionManager, so that a client can
+  transparently use \gls{tcp}, \gls{udp} - or some other protocol (such as
+  \gls{http}, or \gls{amqp}). Connection Manager parses received commands
+  (Section~\ref{sec:protocol}), and calls the relevant methods on QueueManager.
+  \item[Queue Manager]
+  Maintains a list of active queues/topics, and handles the publishing of
+  messages to said queues/topics, as well as the addition/removal of
+  subscribers.
+  \item[Message Mutators]
+  An optional module for each queue/topic, which allows simple mutations to be
+  performed on messages as they pass through the broker. One example could be
+  throwing away values below/above a certain threshold, or enriching data as it
+  passes through the data, with information from an external database. Multiple
+  message mutators can be chained together, should multiple mutations be
+  required.
+  \item[Queue/Topics]
+  The buffering datastructures designed to hold and deliver messages to
+  consumers. Due to the semantic differences between queues and topics
+  (Sections~\ref{sub:queues} and \ref{sub:topics}), subtly different
+  datastructures are required for each - details of which are given in
+  Section~\ref{sub:messageStorage}.
+  \item[Message Shippers]
+  Responsible for managing the delivery of messages to subscribers.
+  \item[Metric Manager]
+  Responsible for collecting metrics about broker performance from each of the
+  broker components (latency, throughout, number of connected clients etc.), and
+  asynchronously ship them to \ref{sub:StatsD} for visualisation and analysis.
+\end{description}
+
+The implementation details for each of these components are explored in
+(Section~\ref{chap:Implementation}).
+
 \section{Protocol Design}
 \label{sec:protocol}
 
@@ -193,7 +235,7 @@ message decoding logic is designed to be somewhat modular, allowing for
 additional protocols to easily be supported. The NATS message
 protocol\cite{natsProtocol} served as an inspiration for gamq - as it showed it
 was possible for text-based protocols to be as performant as customised binary
-protocols, and had a slew of other benfits, such as human-readability, and ease
+protocols, and had a slew of other benefits, such as human-readability, and ease
 of debugging.
 
 The gamq protocol defines several commands, which can be seen in
@@ -311,7 +353,7 @@ Listing~\ref{lst:gamqDisconnectTelnet})
 
 Turn the explicit acknowledgement of messages on/off (As demonstrated in
 Listing~\ref{lst:gamqSubackTelnet}). Clients can use the acknowledgement to
-detect potentially lost messages using a timout, and optionally retransmit the
+detect potentially lost messages using a timeout, and optionally retransmit the
 lost message if at-least-once semantics (Section~\ref{sub:failureHandling}) are
 required. Explicitly acknowledging messages (as opposed to relying on built in
 \gls{tcp} error correction) can have a significant overhead, but can also

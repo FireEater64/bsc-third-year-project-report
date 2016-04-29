@@ -3,41 +3,44 @@
 
   \node(queueManager) [draw,rectangle,minimum width=1cm,minimum height=1cm, right=1cm of connectionManager]{Queue Manager};
 
-  \node(messageMutators) [draw,rectangle,gray,minimum height=1cm,right=1cm of queueManager]{(0...n) Message Mutators};
+  \node(messageMutator1) [draw,rectangle,gray,minimum height=1cm,above right=1cm and 1cm of queueManager]{(0...n) Message Mutator};
+  \node(messageMutator2) [draw,rectangle,gray,minimum height=1cm,right=1cm of queueManager]{(0...n) Message Mutator};
+  \node(messageMutator3) [draw,rectangle,gray,minimum height=1cm,below right=1cm and 1cm of queueManager]{(0...n) Message Mutator};
 
-  \node(client1) [draw,rectangle,minimum width=1cm,minimum height=1cm, above left=1cm and 1cm of connectionManager]{Client 1};
-  \node(client2) [draw,rectangle,minimum width=1cm,minimum height=1cm, left=1cm of connectionManager]{Client 2};
-  \node(client3) [draw,rectangle,minimum width=1cm,minimum height=1cm, below left=1cm and 1cm of connectionManager]{Client 3};
+  \node(client1) [draw,rectangle,red,minimum width=1cm,minimum height=1cm, above left=1cm and 1cm of connectionManager]{Client 1};
+  \node(client2) [draw,rectangle,red,minimum width=1cm,minimum height=1cm, left=1cm of connectionManager]{Client 2};
+  \node(client3) [draw,rectangle,red,minimum width=1cm,minimum height=1cm, below left=1cm and 1cm of connectionManager]{Client 3};
 
-  \node(queue1) [draw,rectangle,minimum width=1cm,minimum height=1cm, above right=1cm and 1cm of messageMutators]{Queue 1};
-  \node(topic1) [draw,rectangle,minimum width=1cm,minimum height=1cm, right=1cm of messageMutators]{Topic 1};
-  \node(queue2) [draw,rectangle,minimum width=1cm,minimum height=1cm, below right=1cm and 1cm of messageMutators]{Queue 2};
+  \node(queue1) [draw,rectangle,minimum width=1cm,minimum height=1cm, right=1cm of messageMutator1]{Queue 1};
+  \node(topic1) [draw,rectangle,minimum width=1cm,minimum height=1cm, right=1cm of messageMutator2]{Topic 1};
+  \node(queue2) [draw,rectangle,minimum width=1cm,minimum height=1cm, right=1cm of messageMutator3]{Queue 2};
 
   \node(shipper1) [draw,rectangle,minimum width=1cm,minimum height=1cm, right=1cm of queue1]{Message Shipper};
   \node(shipper2) [draw,rectangle,minimum width=1cm,minimum height=1cm, right=1cm of topic1]{Message Shipper};
   \node(shipper3) [draw,rectangle,minimum width=1cm,minimum height=1cm, right=1cm of queue2]{Message Shipper};
 
-  \node(metricManager) [draw,rectangle,minimum width=1cm,minimum height=1cm, above=3cm of messageMutators]{Metric Manager};
-
+  \node(metricManager) [draw,rectangle,minimum width=1cm,minimum height=1cm, above=2cm of messageMutator1]{Metric Manager};
 
   \draw[->] (client1) edge (connectionManager);
   \draw[->] (client2) edge (connectionManager);
   \draw[->] (client3) edge (connectionManager);
 
-
   \draw[->] (connectionManager) edge (queueManager);
-  \draw[->] (queueManager) edge (messageMutators);
-  \draw[->] (messageMutators) edge (queue1);
-  \draw[->] (messageMutators) edge (topic1);
-  \draw[->] (messageMutators) edge (queue2);
+  \draw[->] (queueManager) edge (messageMutator1);
+  \draw[->] (queueManager) edge (messageMutator2);
+  \draw[->] (queueManager) edge (messageMutator3);
+  \draw[->] (messageMutator1) edge (queue1);
+  \draw[->] (messageMutator2) edge (topic1);
+  \draw[->] (messageMutator3) edge (queue2);
 
   \draw[->] (queue1) edge (shipper1);
   \draw[->] (topic1) edge (shipper2);
   \draw[->] (queue2) edge (shipper3);
 
+  % Metrics Manager connections
   \draw[->] (connectionManager) edge[bend left, gray] (metricManager);
   \draw[->] (queueManager) edge[bend left, gray] (metricManager);
-  \draw[->] (messageMutators) edge[gray] (metricManager);
+  \draw[->] (messageMutator1) edge[gray] (metricManager);
   \draw[->] (queue1) edge[bend right, gray] (metricManager);
   \draw[->] (shipper1) edge[bend right, gray] (metricManager);
 

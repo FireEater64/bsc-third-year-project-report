@@ -12,7 +12,7 @@
 \todo[inline]{Overview of the connection manager (TCP/UDP connections etc.)}
 
 \subsection{Message Storage}
-\label{sub:Message Handlers}
+\label{sub:messageStorage}
 
 In the event that, for whatever reason, a client is not ready to accept a
 message when it arrives - this message must be buffered up in a datastructure of
@@ -163,22 +163,40 @@ Section~\ref{sub:topics}, the main difference between queues and topics, is the
 fact that queues deliver each message to a single consumer, whereas topics
 deliver each message to \emph{all} consumers. This requires a subtly different
 datastructure to hold the messages - as consumers may read messages at different
-rates.\todo{Figure} If we use an array-based datastructure, similar to that in
+rates. If we use an array-based datastructure, similar to that in
 Figure~\ref{fig:tikz:queueArray}, we would be required to maintain a seperate
-queue for each subscriber\todo{Figure} to read from. A topic with $s$
-subscribers, and $n$ pending messages would therefore require at \emph{least}
-$O(n * s)$ memory, and that is without considering the caveats described
-above\todo{XReference}. \\
+queue for each subscriber to read from - as shown in
+Figure~\ref{fig:tikz:arrayTopic}. A topic with $s$ subscribers, and $n$ pending
+messages would therefore require at \emph{least} $O(n * s)$ memory, and that is
+without considering the caveats described above\todo{??}. \\
+
+\begin{figure}[H]
+  \centering
+  \input{figures/topicArray}
+  \caption{An array implementation of a topic}
+  \label{fig:tikz:arrayTopic}
+\end{figure}
 
 A linked-list implementation, however, has the potential to be highly efficient
 when it comes to storage space. Rather than storing $s$ messages, we can simply
 keep multiple 'head' pointers on the same linked-list, one for each subscriber.
 When a subscriber consumes a message - only the head pointer belonging to it is
-moved up the list, the rest remain static. This method only requires $O(s + m)$
+moved up the list, the rest remain static
+(Figure~\ref{fig:tikz:linkedListTopic}). Similar to the queue implementation,
+the \gls{gc} will dispose of messages once all consumers have read them (all of
+the 'subscriber' pointers have passed that message in the chain -
+Figure~\ref{fig:tikz:queueLinkedList}). This method only requires $O(s + m)$
 memory, for a topic with $s$ subscribers, and $m$ messages. The linked-list
 implementation of a topic therefore has an even bigger efficiency saving over
 the corresponding array-based implementation, than in the queue examples given
 above, as seen in Figure~\ref{fig:tikz:implementationSpaceComplexityGraph}.
+
+\begin{figure}[H]
+  \centering
+  \input{figures/topicLinkedList}
+  \caption{A linked-list implementation of a topic}
+  \label{fig:tikz:linkedListTopic}
+\end{figure}
 
 \begin{figure}[H]
   \centering

@@ -1,0 +1,48 @@
+\begin{tikzpicture}[thick]
+
+\coordinate (s) at (0,0);
+\coordinate (t) at (0,-2);
+\coordinate (u) at (0,-4);
+
+\foreach \num in {0,...,6}{
+    \ifthenelse{\num < 4}
+    {\node[draw, minimum size=1cm] at (s) (1-\num) {m\num};} % Fill the box
+    {\node[draw, minimum size=1cm] at (s) (1-\num) {};} % Don't fill the box
+
+    \coordinate (s) at ($(s) + (1,0)$);
+}
+
+\foreach \num in {1,...,7}{
+    \ifthenelse{\num < 4}
+    {\node[draw, minimum size=1cm] at (t) (2-\num) {m\num};} % Fill the box
+    {\node[draw, minimum size=1cm] at (t) (2-\num) {};} % Don't fill the box
+
+    \coordinate (t) at ($(t) + (1,0)$);
+}
+
+\foreach \num in {0,...,6}{
+    \ifthenelse{\num < 4}
+    {\node[draw, minimum size=1cm] at (u) (3-\num) {m\num};} % Fill the box
+    {\node[draw, minimum size=1cm] at (u) (3-\num) {};} % Don't fill the box
+
+    \coordinate (u) at ($(u) + (1,0)$);
+}
+
+\node[above=1mm of 1-0] {$h$};
+\node[above=1mm of 1-4] {$t$};
+
+\node[above=1mm of 2-1] {$h$};
+\node[above=1mm of 2-4] {$t$};
+
+\node[above=1mm of 3-0] {$h$};
+\node[above=1mm of 3-5] {$t$};
+
+\node[left=1cm of 1-0] (s1) {Subscriber1 Messages};
+\node[left=1cm of 2-1] (s2) {Subscriber2 Messages};
+\node[left=1cm of 3-0] (s3) {Subscriber3 Messages};
+
+  \draw[->] (1-0) edge (s1);
+  \draw[->] (2-1) edge (s2);
+  \draw[->] (3-0) edge (s3);
+
+\end{tikzpicture}
