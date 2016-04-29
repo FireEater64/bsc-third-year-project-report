@@ -9,11 +9,14 @@ Rather, they typically form one small part of a much larger \gls{soa} -
 consisting of multiple services, jobs and scripts, all exchanging information in
 the form of messages. These messages may adhere to a standard data-interchange
 format (for example, \gls{json} or \gls{xml}). They may correspond to an agreed
-upon specification (for example, IEEE 1671-2010\cite{atml}).
-Or they may simply be blobs of binary information transmitted over the network -
-completely subject to the interpretation of the sender and receiver. At a
-fundamental level, though, a message is simply a collection of bytes, to be
-transmitted from point A, to point B.\todo{Why is this a good thing?}
+upon specification (for example, IEEE 1671-2010\cite{atml}). Or they may simply
+be blobs of binary information transmitted over the network - completely subject
+to the interpretation of the sender and receiver. At a fundamental level,
+though, a message is simply a collection of bytes, to be transmitted from point
+A, to point B. By not enforcing a fixed schema, and treating messages as simply
+a collection of bytes - message brokers allow any network connected application
+to take advantage of the benefits brokered message passing provides
+(Section~\ref{sec:brokers}).
 
 \section{Message Brokers}
 \label{sec:brokers}
