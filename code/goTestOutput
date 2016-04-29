@@ -1,0 +1,90 @@
+$ go test -v ./... -bench=.
+=== RUN   TestNewClient_ReturnsValidClient
+--- PASS: TestNewClient_ReturnsValidClient (0.00s)
+=== RUN   TestConnectionManager_parseClientCommand_helpMessageReturns
+--- PASS: TestConnectionManager_parseClientCommand_helpMessageReturns (0.00s)
+=== RUN   TestConnectionManager_parseClientCommand_isCaseInsensitive
+--- PASS: TestConnectionManager_parseClientCommand_isCaseInsensitive (0.00s)
+=== RUN   TestConnectionManager_setAck_setsClientAckFlag
+--- PASS: TestConnectionManager_setAck_setsClientAckFlag (0.00s)
+=== RUN   TestConnectionManager_parseEmptyCommand_doesNotCrash
+--- PASS: TestConnectionManager_parseEmptyCommand_doesNotCrash (0.00s)
+=== RUN   TestConnectionManager_subscribeToQueue_addsClientToListOfSubscribers
+1461795441110701930 [Debug] Initialized QueueManager
+1461795441110795546 [Info] Mock subscribed to test
+--- PASS: TestConnectionManager_subscribeToQueue_addsClientToListOfSubscribers (0.00s)
+=== RUN   TestConnectionManager_disconnectCommand_removesClient
+--- PASS: TestConnectionManager_disconnectCommand_removesClient (0.00s)
+	connectionmanager_test.go:114: Disconnecting
+=== RUN   TestConnectionManager_parseClientCommand_invalidCommandProcessedCorrectly
+--- PASS: TestConnectionManager_parseClientCommand_invalidCommandProcessedCorrectly (0.00s)
+=== RUN   TestConnectionManager_emptyClientCommand_handledGracefully
+--- PASS: TestConnectionManager_emptyClientCommand_handledGracefully (0.00s)
+=== RUN   TestConnectionManager_whenInitialized_acceptsConnectionsCorrectly
+1461795441110898515 [Debug] Mock unsubscribed from test
+1461795441110918247 [Debug] No subscribers left on queue test - closing
+1461795441110922431 [Debug] Closing test
+1461795441110930018 [Debug] Removing test from active queues
+1461795441111042636 [Debug] Message shipper for Mock closing down
+1461795441111237828 [Debug] Initialized QueueManager
+1461795441111721481 [Debug] Received metric: test.subscribers - 0
+1461795441111866985 [Debug] Received metric: test.pending - 0
+1461795441112068864 [Debug] A new TCP connection was opened.
+--- PASS: TestConnectionManager_whenInitialized_acceptsConnectionsCorrectly (0.00s)
+=== RUN   TestQueue_sendMessage_messageReceivedSuccessfully
+1461795441112169657 [Debug] Received metric: clients.tcp - 1
+--- PASS: TestQueue_sendMessage_messageReceivedSuccessfully (0.00s)
+=== RUN   TestQueue_sendMessage_generatesMetrics
+1461795441112451500 [Debug] Received metric: bytesin.tcp - 8
+1461795441112483027 [Debug] 7444913517715839379 closed connection
+--- PASS: TestQueue_sendMessage_generatesMetrics (1.01s)
+=== RUN   TestQueue_sendMessageAfterUnsubscribe_messageReceivedSuccessfully
+1461795442121403743 [Debug] Test1 unsubscribed from TestQueue
+1461795442121441451 [Debug] Message shipper for Test1 closing down
+--- PASS: TestQueue_sendMessageAfterUnsubscribe_messageReceivedSuccessfully (0.02s)
+=== RUN   TestQueue_xPendingMetrics_producesCorrectMetric
+--- PASS: TestQueue_xPendingMetrics_producesCorrectMetric (1.02s)
+=== RUN   TestQueue_initialize_completesSuccessfully
+--- PASS: TestQueue_initialize_completesSuccessfully (0.00s)
+=== RUN   TestMessageShipper_SuccessfullyForwardsMessages
+--- PASS: TestMessageShipper_SuccessfullyForwardsMessages (0.00s)
+=== RUN   TestMetricsManager_ReceivesBasicMetric_PublishesDownstreamAndSendsToStatsD
+1461795443163371686 [Debug] Initialized StatsD - sending metrics to: localhost:49038
+1461795443163392465 [Debug] Initialized QueueManager
+1461795443163402523 [Info] Test subscribed to metrics
+1461795443163595829 [Debug] Received metric: test - 123
+1461795443163652406 [Debug] Logging metrics
+1461795444173968597 [Debug] Received metric: test - 123
+1461795444173986585 [Debug] Logging metrics
+1461795445167617084 [Debug] Received metric: test - 123
+1461795445167635142 [Debug] Logging metrics
+--- PASS: TestMetricsManager_ReceivesBasicMetric_PublishesDownstreamAndSendsToStatsD (3.01s)
+=== RUN   TestQueueManager_queuesClosed_removedFromMap
+1461795446168997177 [Debug] Initialized QueueManager
+1461795446169024372 [Info] Dummy subscribed to testing
+1461795446169087402 [Debug] Dummy unsubscribed from testing
+1461795446169102974 [Debug] No subscribers left on queue testing - closing
+1461795446169106598 [Debug] Closing testing
+--- PASS: TestQueueManager_queuesClosed_removedFromMap (0.00s)
+PASS
+ok  	github.com/FireEater64/gamq	5.063s
+?   	github.com/FireEater64/gamq/main	[no test files]
+=== RUN   TestNewMessage_CreatesSuccessfully
+--- PASS: TestNewMessage_CreatesSuccessfully (0.00s)
+=== RUN   TestNewHeaderlessMessage_CreatesSuccessfully
+--- PASS: TestNewHeaderlessMessage_CreatesSuccessfully (0.00s)
+PASS
+BenchmarkMessageCreation-2	10000000	       263 ns/op
+ok  	github.com/FireEater64/gamq/message	2.885s
+=== RUN   TestQueue_CanSendAndReceiveBasicMessages
+--- PASS: TestQueue_CanSendAndReceiveBasicMessages (0.00s)
+=== RUN   TestQueue_ReceiveBeforeSend_ReturnsExpectedResult
+--- PASS: TestQueue_ReceiveBeforeSend_ReturnsExpectedResult (0.02s)
+=== RUN   TestQueue_CloseQueueImmediately_ThrowsNoErrors
+--- PASS: TestQueue_CloseQueueImmediately_ThrowsNoErrors (0.00s)
+=== RUN   TestQueue_EvenNumberOfPushesAndPops_GivesZeroFinalLength
+--- PASS: TestQueue_EvenNumberOfPushesAndPops_GivesZeroFinalLength (0.01s)
+PASS
+BenchmarkQueueSendRecv-2	 1000000	      1918 ns/op
+ok  	github.com/FireEater64/gamq/queue	1.980s
+?   	github.com/FireEater64/gamq/udp	[no test files]
