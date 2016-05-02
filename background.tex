@@ -75,8 +75,7 @@ Managing this complexity is difficult in a number of ways:
   connection-oriented protocol such as TCP is used, there can be significant
   overhead associated with maintaining large numbers of
   connections\footnote{Although this is less of a problem with modern hardware:
-  \url{http://c10m.robertgraham.com/p/manifesto.html}}\todo{Do we need a section
-  on network protocols?}.
+  \url{http://c10m.robertgraham.com/p/manifesto.html}}
   \item[Readiness to receive] \hfill \\ When a service sends a message across
   the network, the assumption is that the recipient of the message is ready to
   receive it.  This is not always the case, however. The recipient may be
@@ -214,12 +213,6 @@ updating the price for all subscribers.
   \caption{Comparing queue and topic delivery patterns}
   \label{fig:tikz:queueVsTopic}
 \end{figure}
-
-\subsection{Existing Brokers}
-\label{sub:Existing Brokers}
-
-Brief overview and comparison between some existing commercial/open-source
-implementations, and their features. \todo{Remove?}
 
 \section{Broker Requirements}
 \label{sec:requirements}
