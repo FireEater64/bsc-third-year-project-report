@@ -10,18 +10,18 @@ consisting of multiple services, jobs and scripts, all exchanging information in
 the form of messages. These messages may adhere to a standard data-interchange
 format (for example, \gls{json} or \gls{xml}). They may correspond to an agreed
 upon specification (for example, IEEE 1671-2010\cite{atml}). Or they may simply
-be blobs of binary information transmitted over the network - completely subject
-to the interpretation of the sender and receiver. At a fundamental level,
-though, a message is simply a collection of bytes, to be transmitted from point
-A, to point B. By not enforcing a fixed schema, and treating messages as simply
-a collection of bytes - message brokers allow any network connected application
-to take advantage of the benefits brokered message passing provides
-(Section~\ref{sec:brokers}).
+be blobs of binary information transmitted over the network - their meaning
+completely subject to the interpretation of the sender and receiver. At a
+fundamental level, though, a message is simply a collection of bytes, to be
+transmitted from point A, to point B - in order, and without data loss. By not
+enforcing a fixed schema, and treating messages as simply a collection of bytes -
+message brokers allow any network connected application to take advantage of the
+benefits brokered message passing provides (Section~\ref{sec:brokers}).
 
 \section{Message Brokers}
 \label{sec:brokers}
 
-\begin{figure}[ht]
+\begin{figure}[htbp]
   \centering
   \input{figures/directMessaging}
   \caption{Two services, A and B, directly exchanging messages}
@@ -41,7 +41,7 @@ illustration the exact mechanism by which bytes are transferred is unimportant,
 the fact that the transfer takes place \emph{directly} between the two parties
 is all that matters.
 
-\begin{figure}[ht]
+\begin{figure}[htbp]
   \centering
   \input{figures/complexDirectMessaging}
   \caption{Ten services directly exchanging messages}
@@ -90,10 +90,10 @@ Managing this complexity is difficult in a number of ways:
   with services that are (for whatever reason) unavailable.
 \end{description}
 
-\begin{figure}[ht]
+\begin{figure}[htbp]
   \centering
   \input{figures/messageBroker}
-  \caption{Ten services exchanging messages via a broker}
+  \caption{Two services exchanging messages via a broker}
   \label{fig:tikz:messageBroker}
 \end{figure}
 
@@ -109,9 +109,11 @@ sending/receiving messages through the broker no long matters - which removes
 the need for complex service discovery protocols. Additionally, by decoupling
 the sending and receiving of messages (Section~\ref{sub:pubsub}) brokers can act
 as a buffer between communicating processes, preventing the receiving process
-from becoming swamped by incoming messages (\gls{dos}).
+from becoming swamped by incoming messages (\gls{dos}), or losing messages in
+the event of an application crash - in both cases, messages simply buffer up on
+the message broker, until the receiving application is ready to consume them.
 
-\begin{figure}[ht]
+\begin{figure}[htbp]
   \centering
   \input{figures/complexBrokerMessaging}
   \caption{Ten services exchanging messages via a broker}
@@ -121,44 +123,61 @@ from becoming swamped by incoming messages (\gls{dos}).
 \subsection{Pub/Sub}
 \label{sub:pubsub}
 
+\begin{figure}[htbp]
+  \centering
+  \input{figures/queuesInsideBroker}
+  \caption{An example of several publishers and subscribers, interacting via a
+  message broker}
+  \label{fig:tikz:queuesInsideBroker}
+\end{figure}
+
 Publish-subscribe is a software pattern, which describes the exchange of
 messages between one-or-more producers (publishers), and one-or-more recipients
 (subscribers). In a typical implementation, publishers send messages
 (Section~\ref{sec:messages}) to a broker - with a named destination (either a
-queue or topic). Subscribers register their interest ('subscribe') to these
-named destinations, and receive all messages sent to said destinations, in a
-manner dependent on whether the destination is a queue (see
-Section~\ref{sub:queues}) or a topic (see Section~\ref{sub:topics}). This
-pattern has several advantages - pub/sub infrastructure can be scaled up to
+queue or topic), as shown in Figure~\ref{fig:tikz:queuesInsideBroker}.
+Subscribers register their interest ('subscribe') to these named destinations,
+and receive all messages sent to said destinations, in a manner dependent on
+whether the destination is a queue (see Section~\ref{sub:queues}) or a topic
+(see Section~\ref{sub:topics}). This pattern has several advantages due to its
+simplicity - pub/sub infrastructure can be easily reasoned about, and scaled to
 handle message routing for an entire datacenter, with relatively little
 complexity. These advantages are explored in detail in
 Section~\ref{sec:brokers}. The disadvantages of the pub/sub model are associated
-with it's loose coupling - the model itself does not define a message format,
+with its loose coupling - the model itself does not define a message format,
 leaving the creation and updating of message contracts to the application
 developer.\footnote{Although, as discussed in Section~\ref{sec:messages}, this
-can also be an advantage}.
+can also be an advantage, as it allows application developers to freely define
+the format of their messages}.
 
 \subsection{Queues}
 \label{sub:queues}
 
-Queues are a standard feature of most programming languages, a core Computer
-Science construct, and familiar to anyone who has ever been to a Post Office(!).
-Queues are a \gls{fifo} data-structure, which deliver messages in the order
-they were inserted into the queue. The other important features of queues (in
-terms of the pub/sub model), is that they can have multiple publishers, and
-multiple subscribers. In the event of a queue having multiple subscribers, each
-message is delivered to a single subscriber.  The order in which messages are
-distributed amongst subscribers is typically a 'round-robin'
-pattern\footnote{Although other variants also exists} - that is to say, the next
-subscriber to receive a message will be the one who is ready to receive a
-message that has received a message least recently.
+Queues are a standard feature of most programming languages and a core Computer
+Science construct\footnote{As well as bring familiar to anyone who has ever been
+to a Post Office}. Queues are a \gls{fifo} data-structure, in which messages are
+retrieved in the same order as they were placed into the queue. The other
+important features of queues (in terms of the pub/sub model), is that they can
+have multiple publishers, and multiple subscribers
+(Figure~\ref{fig:tikz:queuesInsideBroker}). In the event of a queue having
+multiple subscribers, each message is delivered to a single subscriber. The
+order in which messages are distributed amongst subscribers is typically a
+'round-robin' pattern\footnote{Although other variants also exists} - that is to
+say, the next subscriber to receive a message will be the one who is ready to
+receive a message, that has received a message \emph{least recently}.
 
 A typical use of a Message Queue may be the distribution of job information,
 where messages consist of configuration for jobs, and worker applications
-subscribe to the queue this job information is posted on. Once a worker has
-finished the job it's working on, it received information for the next job off
-the queue. Each job is only ever received by a single worker.\todo{Example
-code/diagram. Make this clearer?}
+subscribe to the queue this job information is posted on. Say an application
+developer has a large set of images he wishes to crop to a certain size. These
+images are posted onto a message queue, which a number of servers subscribe to.
+Each server receives a image off the queue, crops it, and saves it to a
+fileserver - before receiving the next image. Each image is only ever received
+by a single worker. This is a scalable soltuion, as the rate at which images are
+processed increases with the number of servers subscribed to the queue (up to a
+point). In the event that a worker fails mid-way through processing an image,
+the broker may decide to redeliver the message to another subscriber, depending
+on how it was configured (Section~\ref{sec:requirements}).
 
 \subsection{Topics}
 \label{sub:topics}
@@ -166,30 +185,49 @@ code/diagram. Make this clearer?}
 Similar to Queues (Section~\ref{sub:queues}), topics are \gls{fifo} structures.
 The key difference between topics and queues, is that whist queues deliver each
 message to a single subscriber, topics deliver each message to \textbf{every}
-subscriber. Each subscriber therefore receives a copy of each message sent to
-the topic.
+subscriber (Figure~\ref{fig:tikz:queueVsTopic}). Each subscriber therefore
+receives a copy of each message sent to the topic.
 
 A common use of topics, is the updating of information in a distributed cache.
-Suppose a number of mobile phones maintained a cache of stock prices, and
+Suppose a number of mobile phones maintain a cache of stock prices, and
 connect to pub/sub infrastructure to receive the latest prices. Obviously, a
 queue would be unsuitable for such a task, as pushing a new stock price onto a
-queue would only update the price for a \textbf{single} subscriber. A topic
+queue will only update the price for a \textbf{single} subscriber. A topic
 would ensure that each stock price published would be sent to every mobile phone -
-updating the price for all subscribers.\todo{Example code/diagram. Make this
-clearer?}.
+updating the price for all subscribers.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[t]{0.5\textwidth}
+    \centering
+    \input{figures/messageBrokerQueue}
+    \caption{Queue delivery pattern with multiple subscribers}
+    \label{fig:tikz:messageBrokerQueue}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.5\textwidth}
+    \centering
+    \input{figures/messageBrokerTopic}
+    \caption{Topic delivery pattern with multiple subscribers}
+    \label{fig:tikz:messageBrokerTopic}
+  \end{subfigure}
+  \caption{Comparing queue and topic delivery patterns}
+  \label{fig:tikz:queueVsTopic}
+\end{figure}
 
 \subsection{Existing Brokers}
 \label{sub:Existing Brokers}
 
 Brief overview and comparison between some existing commercial/open-source
-implementations, and their features.
-
+implementations, and their features. \todo{Remove?}
 
 \section{Broker Requirements}
 \label{sec:requirements}
 
 A message-broker is rather an unusual piece of software, due to the fact that is
-has very few functional requirements.\todo{Elaborate?}
+has very few functional requirements, they are simply required to deliver
+messages from point A, to point B. Nearly all of their requirements are
+non-functional, and fall into the following categories.
 
 \subsection{Failure Handling}
 \label{sub:failureHandling}
@@ -226,9 +264,9 @@ semantics with which \glspl{rpc} could be executed:
     insignificant next to the risk that the refresh does not happen at all.
 \end{description}
 
-Most brokers typically choose the \textit{at least once} model when using
+Most brokers typically adhere to the \textit{at least once} model when using
 \gls{tcp}, and \textit{at most once} when using \gls{udp}\footnote{Though again,
-this varies between implementations} - as the delivery models fit the
+this varies between implementations} - as these delivery models fit the
 characteristics of their respective delivery protocols.
 
 \subsection{Network Bandwidth Utilisation}
@@ -278,10 +316,12 @@ affect this include:
 
 Finally - the most obvious performance metric of a broker - the number of
 messages it can process per second. This is impacted by all of the above
-requirements, and can be maximised through the use of small, cheap messages,
-with as little overhead as possible. Network protocol can make a large
-difference here - with something like \gls{udp} being extremely cheap to send over the
-wire (if inherently unreliable) compared with \gls{tcp}.
+factors, and can be maximised through the use of small, cheap messages, with as
+little overhead as possible - and reducing the number of expensive operations
+performed when delivering messages (memory operations/network access' etc.).
+Network protocol can make a large difference here - with something like
+\gls{udp} being extremely cheap to send over the wire (if inherently unreliable)
+compared with \gls{tcp}.
 
 \section{GoLang}
 \label{sec:GoLang}
@@ -298,21 +338,20 @@ One of the founding principals of Go was simplicity, and ease of
 maintainability\cite{lessIsExponentiallyMore} - even at the expense of
 performance in some areas\footnote{Although GoLang does perform well in
 benchmarks, due to its compiled nature\cite{benchmarksGame}}. As such, Go has a
-relatively light core feature-set compared with most other 'network-oriented
-languages'\footnote{Such as Java, .NET, Python and Ruby}, and contains creature
-comforts not found in other performance-oriented languages like C++, such as
-Garbage Collection - something which has typically been the sole preserve of
+relatively light core feature-set compared with most other
+'\emph{network-oriented languages}', such as Java, .NET, Python and Ruby. Go
+also contains creature comforts not found in performance-oriented languages like
+C++, such as \gls{gc} - something which has typically been the sole preserve of
 languages with an interpreted runtime, such as Java, Ruby and Python. However,
 due to its nature as a compiled language, Go still outperforms these
 'traditional languages' in a number of standard benchmarks\cite{benchmarksGame}
-which, combined with the multitude of built-in concurrency features
-(Section~\ref{sub:golangConcurrency}) make Go an extremely compelling language
-for developing networked infrastructure software, such as a message broker.
+which, combined with the built-in '\emph{CSP-style}'\cite{hoareCAR} concurrency
+features (Section~\ref{sub:golangConcurrency}) make Go an extremely compelling
+language for developing networked infrastructure software, such as a message
+broker.
 
 \subsection{Concurrency vs Parallelism}
 \label{sub:concurrencyparallelism}
-
-\todo[inline]{Why do we need either?}
 
 Confusion often exists as to the relationship between parallelism and
 concurrency, thanks in part to their often similar dictionary definitions:
@@ -336,7 +375,7 @@ give 10 amateur players each the opportunity to play a game with a professional
 player, and wish to conduct these games in as time-efficient a manner as
 possible. There are multiple ways such a tournament could be run. \\
 
-\paragraph{Sequentially}
+\paragraph{Sequentially} \mbox{}\\
 
 The professional player could sit down with each of the ten amateurs, and play
 him/her to completion - before moving on to the next amateur. This is synonymous
@@ -346,7 +385,7 @@ seconds. $$6 \text{ seconds} * 10 \approx 1 \text{ minute}$$
 The time taken to complete the tournament is therefore 101 minutes (1 hour, 41
 minutes). This is the worst case scenario. \\
 
-\paragraph{Concurrently}
+\paragraph{Concurrently} \mbox{}\\
 
 An alternative method of running the tournament would be to get the professional
 to play all 10 games \textbf{concurrently}. In this scenario, she would play
@@ -371,7 +410,7 @@ The total time for the game is therefore
 This equates to 20 minutes, and 21 seconds - a dramatic improvement over the
 sequential method. \\
 
-\paragraph{Parallel}
+\paragraph{Parallel} \mbox{}\\
 
 Now we can look at the effect of simple \textbf{parallelism} on the tournament
 time. Assuming we return to the sequential tournament method, but invite a
@@ -382,7 +421,7 @@ However, note that we not only require twice as many 'resources' (in this case,
 professional draughts players) as before, but took \emph{longer} to complete the
 tournament than the concurrent method. \\
 
-\paragraph{Concurrently Parallel}
+\paragraph{Concurrently Parallel} \mbox{}\\
 
 Introducing another professional player (as above) into a concurrent game again
 involves splitting the 10 amateur players into two groups of 5. Games are

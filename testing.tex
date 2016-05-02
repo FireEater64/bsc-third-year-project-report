@@ -87,7 +87,7 @@ previous build (in a similar) manner to my code coverage metrics.
 
 \begin{listing}
   \centering
-  \begin{minted}[frame=single, framesep=10pt]{Bash}
+  \begin{minted}{Bash}
 BenchmarkMessageQueue_Push-2 # Benchmark Name
 5000000 # Number of times loop executed to get a stable average
 239 ns/op # Average execution time across all runs
@@ -100,7 +100,12 @@ BenchmarkMessageQueue_Push-2 # Benchmark Name
 \subsection{TravisCI}
 \label{sub:TravisCI}
 
-\missingfigure{Travis.CI screenshot}
+\begin{figure}[H]
+  \includegraphics[width=0.8\textwidth]{figures/travisScreenshot}
+  \centering
+  \caption{Travis.CI}
+  \label{fig:travisCI}
+\end{figure}
 
 Despite the initial plan being to set up and self-host most of the \gls{ci}
 infrastructure, it became clear after an initial trial that it would be far
@@ -119,7 +124,7 @@ configuration in Listing~\ref{lst:initialTravis} consisted of only three:
 
 \begin{listing}
   \centering
-  \begin{minted}[frame=single,framesep=10pt]{YAML}
+  \begin{minted}{YAML}
 language: go
 
 go:
@@ -165,7 +170,12 @@ script: go test -v ./... -bench=.
 \subsection{Coveralls}
 \label{sub:Coveralls}
 
-\missingfigure{Coveralls screenshot}
+\begin{figure}[H]
+  \includegraphics[width=0.8\textwidth]{figures/coverallsScreenshot}
+  \centering
+  \caption{Coveralls}
+  \label{fig:coveralls}
+\end{figure}
 
 One important (though not definitive) metric associated with unit/integration
 tests is \emph{code coverage}, which is the total percentage of the code-base
@@ -197,7 +207,7 @@ as well as being summarised in the
 project on GitHub}\(Figure~\ref{fig:readmeStatus} \).
 
 \begin{figure}
-  \includegraphics{figures/README}
+  \includegraphics[width=0.8\textwidth]{figures/README}
   \centering
   \caption{Code status badges in README.md}
   \label{fig:readmeStatus}

@@ -4,10 +4,31 @@
 \section{Broker Implementation}
 \label{sec:Broker Implementation}
 
-\todo[inline]{High level overview of the broker architecture (blocks/channels/message flows etc.), as well as datastructures/algorithms used}
+A system-block diagram, showing the interactions between the various gamq
+submodules, can be seen in Figure~\ref{fig:systemBlockDiagram}.
 
 \subsection{Connection Manager}
-\label{sub:Connection Manager}
+\label{sub:connectionManager}
+
+As mentioned in Section~\ref{sec:codestructure}, the Connection Manager has two
+main functions, accepting incomming connections, and parsing incomming arguments
+in compliance with the protocol (Section~\ref{sec:protocol}).
+
+The acceptance of incomming connections requires the specifics of each protocol
+(\gls{tcp}/\gls{udp}/\gls{http} etc.) to be abstracted away using a standard
+interface through which messages can be sent to clients, the 'writer' interface
+in this case. An example of the UDP writer interface can be seen in
+Appendix~\ref{appendix:udpWriter}. Once connected, each client is serviced by a
+seperate GoRoutine in an \emph{Event Loop}-style pattern - the main Connection
+Manager thread performs the minimal amount of work necessary before farming a
+client out to a background thread, in order to prevent one connecting client
+from blocking another.
+
+The parsing of each client message is simply a matter of tokenisation and
+pattern matching, as seen in Appendix~\ref{appendix:parseClientCommand}. The
+biggest performance gains to be exploited in a message broker are in ensuring
+efficient serialization and deserialization of messages - so this was a focus of
+the protocol parsing logic, as explored in Section~\ref{sub:performance}.
 
 \todo[inline]{Overview of the connection manager (TCP/UDP connections etc.)}
 
@@ -209,36 +230,126 @@ above, as seen in Figure~\ref{fig:tikz:implementationSpaceComplexityGraph}.
 \subsection{Message Shipper}
 \label{sub:Message Shipper}
 
-\todo[inline]{Message delivery/queue/topic behavior}
+The Message Shipper is responsible for pulling messages off an internal gamq
+queue/topic (Section~\ref{sub:messageStorage}), and sending them to consumers.
+Thanks to the blocking characteristic of GoChannels
+(Section~\ref{sub:golangConcurrency}), this is as simple as listening to the
+GoChannel attached to the subscribers queue/topic, encoding messages as they are
+pulled off the queue and sending the bytes to the 'writer' object created by
+the Connection Manager (Section~\ref{sub:connectionManager}) - as seen in
+Appendix~\ref{appendix:sendMessagesToClient}.
 
 \subsection{Metrics Manager}
 \label{sub:Metrics Manager}
 
-\todo[inline]{Metric format/serialization. How do we ensure minimal CPU usage}
+As shown in Figure~\ref{fig:systemBlockDiagram}, all other blocks in the system
+produce performance metrics, to be formatted as StatsD
+(Section~\ref{sub:StatsD}) messages, for graphing and visualisation. These
+metrics are aggregated by the Metrics Manager, before being sent to InfluxDB
+(Section~\ref{sub:InfluxDB}). Whilst important, sending metrics should never
+impact the performance of the broker itself - so the metrics manager uses a
+'\emph{buffered GoChannel}'\cite{channelsInGo}. Unlike a normal GoChannel,
+putting a message on a buffered channel will not block in the event that the
+GoRoutine on the other end is not currently listening\footnote{Assuming the
+buffer is not full}. Once the Metrics Manager has received a metric from the
+channel, it adds the value to a local buffer - which it flushes once a second,
+formatting all buffered metrics as lightweight StatsD UDP packets
+(Section~\ref{sub:StatsD}) - which it sends to the configured StatsD network
+address (Section\ref{sec:Configuration}).
 
 \section{Presentation Interface}
-\label{sec:Presentation Interface}
+\label{sec:presentationInterface}
 
-\todo[inline]{Screenshots/high-level description}
+\subsection{StatsD}
+\label{sub:StatsD}
 
-\subsection{Graphite/Grafana}
-\label{sub:Graphite/Grafana}
+StatsD is an open-source statistics daemon, written by developers at
+\href{https://www.etsy.com/uk/}{Etsy} in 2010\cite{statsd}, and which has seen
+widespread adoption by infrastructure teams ever since. The project aims to
+define a simple protocol (Listing~\ref{lst:statsdSchema}) for sending statistics
+over the network, and to make it simple to aggregate and store those metrics for
+real-time analysis. StatsD can differentiate between metrics of different types:
 
-\todo[inline]{Architecture}
+\begin{listing}
+  \centering
+  \mintinline{text}{metricname:1|c}
+  \caption{A simple counter metric, exactly as it would appear inside a network packet}
+  \label{lst:statsdSchema}
+\end{listing}
+
+\begin{description}
+  \item[Counters] A simple counter that can be incremented or decremented. An
+  example use case could be the number of messages sent through a broker.
+  \item[Timing] The amount of time taken to complete a task. An example could be
+  the amount of time taken to process a message.
+  \item[Gauges] An arbitrary value, stored until it is superseded by a new
+  value. An example of this could be the number of connections open to the
+  broker at a single point in time.
+\end{description}
+
+These packets can be sent over the network as either TCP or UDP packets. Packets
+can contain multiple metrics, separated with newline characters
+(Listing~\ref{lst:statsdMultiplePackets}), which can greatly improve the
+efficiency of the transfer, as the size of each metric (the order of a few
+bytes) is far below the maximum capacity of a single packet - whilst the typical
+\gls{mtu} of Ethernet networks is ~1500 bytes\cite{rfc1191}. Gamq uses the UDP
+protocol by default (although this is configurable, see
+Section~\ref{sec:Configuration} for details), as the cost of sending UDP packets
+is very low cost when compared to TCP, and we do not require the deliverability
+guarantees of TCP (metrics are non-critical). Metrics are typically sent over a
+\gls{lan}, where packet loss is usually quite low. In the event that is it not,
+but the packet loss is uniform, the loss of some metrics should not affect the
+overall trend of the data too adversely.
+
+\begin{listing}
+  \centering
+  \mintinline{text}{gorets:1|c\nglork:320|ms\ngaugor:333|g\nuniques:765|s}
+  \caption{Multiple metrics in a single packet}
+  \label{lst:statsdMultiplePackets}
+\end{listing}
+
+\subsection{InfluxDB}
+\label{sub:InfluxDB}
+
+InfluxDB is an open-source, NoSQL database, optimised for the storage and
+retrieval of \gls{time-series data}. Influx is part of a family of databases
+designed to store (amongst other things) a large amount of metrics data at very
+high speed (the order of millions of events per second), which also includes
+\href{http://graphite.wikidot.com/}{Graphite} and
+\href{http://opentsdb.net/}{OpenTSDB}. InfluxDB was chosen for this project due
+to its maturity (compared to OpenTSDB) and performance (compared to
+Graphite/Carbon).
+
+\subsection{Grafana}
+\label{sub:Grafana}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/grafanaMidBenchmark}
+  \caption{A screenshot of the Grafana visualisation tool}
+  \label{fig:grafanaMidBenchmark}
+\end{figure}
+
+\href{http://grafana.org/}{Grafana} is an open-source visualisation tool for
+\gls{time-series data}, typically that which is produced by Internet
+infrastructure and application analytics. Developed by a consortium of Internet
+companies as a modern replacement for the previously popular
+\href{https://github.com/graphite-project/graphite-web}{Graphite-Web} project.
+Grafana can visualise \gls{time-series data} from a variety of data-sources,
+such as the ElasticSearch, the aforementioned Graphite and, most importantly,
+InfluxDB.
 
 \subsection{Docker}
-\label{sub:dockerImplementation}
+\label{sub:dockerDesign}
 
-As mentioned in \ref{sub:dockerDesign}\ldots
-
-\todo[inline]{Overview and Dockerfile description}
-
-\section{Utilities}
-\label{sec:Utilities}
-
-\todo[inline]{Python benchmark code walkthrough}
-
-\subsection{Configuration}
-\label{sub:Configuration}
-
-\todo[inline]{Specifics of command-line flag/config file implementation}
+As mentioned in Section~\ref{sub:StatsD}, gamq is designed to send StatsD
+messages (Section~\ref{sub:StatsD}) across the network. In a production
+environment, these would be sent to the above software stack, running on a
+separate server in the datacenter. In a development environment, the metrics
+stack could be run on a development server, or the developers local machine. The
+configured monitoring stack should therefore be as portable as possible, to make
+development as simple as possible. \href{https://www.docker.com/}{Docker} allows
+environments to be defined in code, and built into container images - which can
+be run in a manner similar to that of a lightweight virtual machine. The Docker
+container gamq sends metrics to is available
+\href{https://github.com/FireEater64/docker-statsd-influxdb-grafana}{on Github}.

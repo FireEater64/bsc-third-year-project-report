@@ -4,7 +4,7 @@
 \begin{ganttchart}[
   hgrid,
   vgrid,
-  today=24,
+  today=23,
   today rule/.style=%
     {draw=blue, ultra thick}
   ]{1}{23}
@@ -44,6 +44,21 @@
 \label{appendix:queueCode}
 
 \inputminted[breaklines=true, breakanywhere]{go}{code/gamq/queue/queue.go}
+
+\chapter{UdpWriter}
+\label{appendix:udpWriter}
+
+\inputminted[breaklines=true, breakanywhere]{go}{code/gamq/udp/udpwriter.go}
+
+\chapter{Parse Client Command}
+\label{appendix:parseClientCommand}
+
+\inputminted[breaklines=true, breakanywhere, firstline=226, lastline=260]{go}{code/gamq/connectionmanager.go}
+
+\chapter{Send Messages To Client}
+\label{appendix:sendMessagesToClient}
+
+\inputminted[breaklines=true, breakanywhere, firstline=35, lastline=67]{go}{code/gamq/messageshipper.go}
 
 \chapter{Benchmark Code}
 \label{chap:benchmarkCode}
