@@ -1,37 +1,65 @@
 \chapter{Conclusion}
 \label{chap:Conclusion}
 
-\section{Project Goals}
-\label{sec:Project Goals}
+Overall, the project was an excellent learning experience. It provided an
+opportunity to learn a new programming language and explore modern, open-source
+development techniques - as well as learn about the intricacies involved with
+building infrastructure software, the complexities of which are often
+overlooked.
 
-\todo[inline]{Comparison with initial goals. Mid-project change of focus.}
+\section{Project Goals}
+\label{sec:goalsConclusion}
+
+The goal of this project has changed multiple times over the last 8 months.
+Initial plans, were to build a very simple message broker - to be used as a
+vehicle for exploring autonomic computing principals, and create a
+'self-healing', 'self-improving' message broker. These goals were made with no
+knowledge of the challenges associated with learning a new language, and in
+dealing with the complexities of parallelism at the scale used in gamq. During a
+mid-project review it was decided that, whilst it was theoretically possible
+that the complexity of the broker could have been scaled down, and the original
+project goals still met - the goal of the project should be refocused towards
+producing a mature, high-performance, well-tested messaging broker. This
+reflected not only the reality of the situation at the time, but a change in the
+authors interests. These new goals, the ones outlined in
+Chapter~\ref{chap:Introduction} have, as far as the author is concerned, all
+been met - and the decision to change the project focus, was the correct one.
 
 \subsection{Experience with GoLang}
-\label{sub:Experience with GoLang}
+\label{sub:golangConclusion}
 
-\todo[inline]{Pros/Cons}
-
-\subsection{Produced feature set}
-\label{sub:Produced featureset}
-
-\todo[inline]{Queues/topics/metrics etc.}
+After completing the authors first substantial piece of work with the Go
+programming language, the power of CSP-style concurrency, combined with a clean,
+modern development infrastructure - demonstrate why Go is now one of the top 20
+most popular languages on GitHub\cite{languageRankings}, despite its young age.
+Whilst it is arguable that a broker with similar feature-set could have been
+produced in a more familiar language\footnote{Such as Python, or Java} in less
+time, the performance and scalability of the implementation would have almost
+certainly lagged behind that of gamq.
 
 \subsection{Performance}
 \label{sub:performance}
 
-Zero-allocation buffer \cite{highPerformanceSystemsInGo}
-
-\todo[inline]{Comparison with commercial products. Performance vs productivity.}
+Whilst the performance of gamq (Section~\ref{sec:systemPerformance}) is
+considerably higher than originally hoped (original estimates predicted
+somewhere in the region of 5,000 messages/second), there are still numerous
+potential performance increases that could be explored. The biggest of these
+(according to the CPU performance profile in
+Appendix~\ref{appendix:profileResults}) lies in reducing the amount of garbage
+created by the application (and consequently, the amount of time spent
+performing garbage collection), through the reuse of message objects, and the
+use of zero-allocation buffers \cite{highPerformanceSystemsInGo} when receiving
+data.
 
 \section{Future Work}
 \label{sec:Future Work}
 
-\todo[inline]{Performance improvements/features etc.}
-
-\subsection{Open-source maintenance}
-\label{sub:Open-source maintanance}
-
-\todo[inline]{Continued development/open-source infrastructure}
-
-\section{Final Conclusion}
-\label{sec:Final Conclusion}
+Going forward, it is hoped that some of the knowledge (and possibly code!) gained
+from this project continue to see use in some form or another. Towards the end
+of the project, the 'professional open-source' message broker
+NATS\footnote{\url{https://nats.io/}} was examined for similarities/differences
+with gamq. Whilst the size and scope of NATS far outstrips that of gamq, it is
+hoped that it will be possible to transfer some of the knowledge gained during
+this project in the form of open-source
+contributions\footnote{\url{https://github.com/nats-io/gnatsd/pulls}}
+to other projects like NATS.

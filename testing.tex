@@ -29,7 +29,7 @@ optionally fails the test by calling the relevant method on the test controller
 (\mintinline{go}{t.Fail()}). Note that whilst the example given in
 Listing~\ref{lst:goTest} is a unit test, integration tests are written using the
 same formula. The output from the full test suite can be seen in the appendix
-(Section~\ref{chap:testOutput}), as well as viewed online
+(Section~\ref{appendix:testOutput}), as well as viewed online
 (Section~\ref{sub:TravisCI}).
 
 \begin{listing}[htbp]
@@ -50,7 +50,7 @@ which use GoRoutines/GoChannels (Section~\ref{sub:golangConcurrency}) will
 behave in a non-deterministic manner, which can make testing them challenging.
 For example, a block of code that receives a value sent by another GoRoutine,
 has no knowledge of when the value will be received - as the GoRoutine it
-receives the value from is non-deterministically schedulled by the runtime.
+receives the value from is non-deterministically scheduled by the runtime.
 Therefore, when testing asynchronous code, an assertion that a particular
 parameter has been set correctly must take place after the thread that sets the
 value of said parameter has written it. A naive method of achieving this, would
@@ -81,7 +81,7 @@ tests whilst doing so. In a sufficiently large code-base, this can lead to test
 suits that take hours to run, and which are run less frequently as a result.
 
 Second, and more seriously - the thread that sets
-\mintinline{go}{valueWillBeWrittenHere} may be schedulled to run after 5.5
+\mintinline{go}{valueWillBeWrittenHere} may be scheduled to run after 5.5
 seconds, by which time the test will have already been failed. This is known
 as a \emph{\gls{false negative}}, tests that report failure where none exists.
 These may not appear serious, however in large software projects they have a
@@ -92,7 +92,7 @@ A much better method of asynchronous testing is provided by the
 \href{https://github.com/onsi/gomega}{\emph{gomega}} testing package - which
 provides methods to regularly poll the values of variables, terminating either
 after the pass criteria has been met, or a configurable timeout has been
-exceeded. An example of using gomega to test asynchronous code, can be seen in
+exceeded. An example of using Gomega to test asynchronous code, can be seen in
 Listing~\ref{lst:asyncGomegaTest}.
 
 \begin{listing}[H]
@@ -110,7 +110,7 @@ gomega.Eventually(func() int {
 		return valueWillBeWrittenHere
 	}, TIMEOUT, POLLING_INTERVAL).Should(gomega.Equal(expectedValue))
   \end{minted}
-  \caption{Using gomega to test asynchrnous code}
+  \caption{Using gomega to test asynchronous code}
   \label{lst:asyncGomegaTest}
 \end{listing}
 
@@ -300,33 +300,26 @@ production as closely as possible, warts and all.
   \label{fig:linkConditioner}
 \end{figure}
 
-\begin{figure}[htbp]
-  \includegraphics[width=0.8\textwidth]{figures/networkLinkConditioner}
-  \centering
-  \caption{Screenshot of the network link conditioner}
-  \label{fig:linkConditioner}
-\end{figure}
-
 Using the built in real-time performance metrics tools discussed in
 Section~\ref{sec:presentationInterface}, and the python benchmarking code listed
-in Appendix~\ref{chap:benchmarkCode} - rough performance figures for gamq could
+in Appendix~\ref{appendix:benchmarkCode} - rough performance figures for gamq could
 be measures. The Network Link Conditioning Tool
 (Figure~\ref{fig:linkConditioner}) was also used to simulate suboptimal
 networking conditions (latency, packet loss etc.), to validate the operation of
 the broker in less-than-ideal environments. Gamq can also produce performance
 profile information in the standardised 'pprof' format using a command line flag
-(Section~\ref{sub:Command-line configuration}), which can be visualized to
+(Section~\ref{sub:Command-line configuration}), which can be visualised to
 produce 'hotspot' graphs, that details the amount of CPU time spent in each
-function. An example graph can be seen in Appendix~\ref{chap:profileResults}.
+function. An example graph can be seen in Appendix~\ref{appendix:profileResults}.
 
 \section{System Performance}
-\label{sec:System Performance}
+\label{sec:systemPerformance}
 
-Nominal performance of the broker using TCP messages without acknowlegment
+Nominal performance of the broker using TCP messages without acknowledgement
 messages, was around 15,000 messages/second on a second-generation Intel Core
 i7. UDP messages produced roughly double this figure - 30,000 messages per
 second, but also produced a very large number of lost messages, due to the lack
-of built in flow control in the UDP protocol. Enabling message acknowlegements
+of built in flow control in the UDP protocol. Enabling message acknowledgements
 brought the TCP message rates down to 10,000 messages/second, and actually
 increased the UDP performance slightly - to 34,000 messages/second, by reducing
 the number of lost messages.

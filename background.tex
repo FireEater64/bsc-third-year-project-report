@@ -172,7 +172,7 @@ developer has a large set of images he wishes to crop to a certain size. These
 images are posted onto a message queue, which a number of servers subscribe to.
 Each server receives a image off the queue, crops it, and saves it to a
 fileserver - before receiving the next image. Each image is only ever received
-by a single worker. This is a scalable soltuion, as the rate at which images are
+by a single worker. This is a scalable solution, as the rate at which images are
 processed increases with the number of servers subscribed to the queue (up to a
 point). In the event that a worker fails mid-way through processing an image,
 the broker may decide to redeliver the message to another subscriber, depending
@@ -451,25 +451,7 @@ described as 'lightweight threads' by the languages creators\todo{Citation}.
 Because they are managed by the Go runtime, Goroutines can be \gls{preempted} by
 the Go runtime, as described in \ref{sub:whyConcurrency}. This means that,
 Goroutines never block whilst waiting for IO - which is extremely important in
-networked environments (such as a messaging broker). Example code and output are
-given in Listings~\ref{lst:goroutineDemo} and \ref{lst:goroutineDemoOutput}
-respectively.
-
-\begin{listing}[ht]
-  \centering
-  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
-  \inputminted{go}{code/snippets/goroutineDemo.go}
-  \caption{Goroutine demo\cite{goByExample}}
-  \label{lst:goroutineDemo}
-\end{listing}
-
-\begin{listing}[ht]
-  \centering
-  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
-  \inputminted{bash}{code/goroutineDemoOutput}
-  \caption{Goroutine demo output\cite{goByExample}}
-  \label{lst:goroutineDemoOutput}
-\end{listing}
+networked environments (such as a messaging broker).
 
 \paragraph{GoChannels}
 
@@ -485,27 +467,7 @@ channel - and is now placed on the scheduler queue, since it has a value to read
 from the channel. At some point in the future, \textit{goroutine2} is scheduled
 for execution, and receives the value sent to it by \textit{goroutine2}. This
 entire exchange is completely thread-safe, since no memory is shared between the
-two GoRoutines.\todo{Code/Diagram example?}
-
-
-Example code and output are given in Listings~\ref{lst:gochannelDemo} and
-\ref{lst:gochannelDemoOutput} respectively.
-
-\begin{listing}[ht]
-  \centering
-  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
-  \inputminted{go}{code/snippets/gochannelDemo.go}
-  \caption{Gochannel demo\cite{goByExample}}
-  \label{lst:gochannelDemo}
-\end{listing}
-
-\begin{listing}[ht]
-  \centering
-  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
-  \inputminted{bash}{code/gochannelDemoOutput}
-  \caption{Gochannel demo output\cite{goByExample}}
-  \label{lst:gochannelDemoOutput}
-\end{listing}
+two GoRoutines.
 
 \subsection{Why do we need concurrency?}
 \label{sub:whyConcurrency}

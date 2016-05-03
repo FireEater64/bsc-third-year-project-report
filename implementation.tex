@@ -11,15 +11,15 @@ submodules, can be seen in Figure~\ref{fig:systemBlockDiagram}.
 \label{sub:connectionManager}
 
 As mentioned in Section~\ref{sec:codestructure}, the Connection Manager has two
-main functions, accepting incomming connections, and parsing incomming arguments
+main functions, accepting incoming connections, and parsing incoming arguments
 in compliance with the protocol (Section~\ref{sec:protocol}).
 
-The acceptance of incomming connections requires the specifics of each protocol
+The acceptance of incoming connections requires the specifics of each protocol
 (\gls{tcp}/\gls{udp}/\gls{http} etc.) to be abstracted away using a standard
 interface through which messages can be sent to clients, the 'writer' interface
 in this case. An example of the UDP writer interface can be seen in
 Appendix~\ref{appendix:udpWriter}. Once connected, each client is serviced by a
-seperate GoRoutine in an \emph{Event Loop}-style pattern - the main Connection
+separate GoRoutine in an \emph{Event Loop}-style pattern - the main Connection
 Manager thread performs the minimal amount of work necessary before farming a
 client out to a background thread, in order to prevent one connecting client
 from blocking another.
@@ -27,7 +27,7 @@ from blocking another.
 The parsing of each client message is simply a matter of tokenisation and
 pattern matching, as seen in Appendix~\ref{appendix:parseClientCommand}. The
 biggest performance gains to be exploited in a message broker are in ensuring
-efficient serialization and deserialization of messages - so this was a focus of
+efficient serialisation and serialisation of messages - so this was a focus of
 the protocol parsing logic, as explored in Section~\ref{sub:performance}.
 
 \todo[inline]{Overview of the connection manager (TCP/UDP connections etc.)}
@@ -92,7 +92,7 @@ However, there are several disadvantages of this approach, for both the enqueue 
   \item[\textit{enqueue(m)}] \hfill \\
     Arrays in GoLang have a fixed length - but there is no limit on the number
     of messages a queue may be asked to buffer. We can compensate for this by
-    using 'slices' instead of arrays\todo{Explain slices - seperate section} -
+    using 'slices' instead of arrays\todo{Explain slices - separate section} -
     which are expandable using the \mintinline{go}{append()} command
     (Listing~\ref{lst:golangAppendToSlice}). The message $m$ is stored into the
     first available array index, which will typically complete in $O(1)$ time.
@@ -185,7 +185,7 @@ fact that queues deliver each message to a single consumer, whereas topics
 deliver each message to \emph{all} consumers. This requires a subtly different
 datastructure to hold the messages - as consumers may read messages at different
 rates. If we use an array-based datastructure, similar to that in
-Figure~\ref{fig:tikz:queueArray}, we would be required to maintain a seperate
+Figure~\ref{fig:tikz:queueArray}, we would be required to maintain a separate
 queue for each subscriber to read from - as shown in
 Figure~\ref{fig:tikz:arrayTopic}. A topic with $s$ subscribers, and $n$ pending
 messages would therefore require at \emph{least} $O(n * s)$ memory, and that is
