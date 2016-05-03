@@ -6,17 +6,17 @@
 
 Many large, distributed applications (particularly in 'enterprise' environments)
 make extensive use of messaging brokers - software (or
-hardware\cite{solaceappliances}) responsible for passing messages at
-layer-7\footnote{\url{https://support.microsoft.com/en-us/kb/103884}} between
-services, over the network. Two examples of such software are
+hardware\cite{solaceappliances}) responsible for passing
+layer-7\footnote{\url{https://support.microsoft.com/en-us/kb/103884}} messages
+between services, over the network. Two examples of such software are
 \href{http://www.tibco.com/products/automation/enterprise-messaging/enterprise-message-service}{TibcoEMS}
 and \href{https://www.rabbitmq.com/}{RabbitMQ}. Brokers improve the software
 development experience for engineers working on distributed applications, by
 abstracting away complexities involved with passing messages between software
 running on distributed, heterogeneous hardware - which may be separated by
 networks operated by multiple different administrators, and with suboptimal
-qualities.\footnote{\url{https://blogs.oracle.com/jag/resource/Fallacies.html}}.
-These broker benefits are explored in-depth in Section~\ref{sec:brokers}.
+qualities\cite{fallacies}. These broker benefits are explored in-depth in
+Section~\ref{sec:brokers}.
 
 \href{https://golang.org/}{GoLang} is a modern, cross-platform, open-source
 programming language initially developed by Google, and designed primarily for
@@ -39,8 +39,9 @@ built-in monitoring.
 In broad strokes, my project has the following goals:
 
  \begin{itemize}
-   \item Evaluate the impact and usefulness of GoLang's fairly unique set of
-   concurrency primitives in constructing and testing high performance software.
+   \item Learn and evaluate the impact and usefulness of GoLang's fairly unique
+   set of concurrency primitives in constructing and testing high performance
+   software.
    \item Design and build a well-tested, stable message broker in GoLang.
    \item Evaluate the performance and feature-set of my implementation.
  \end{itemize}

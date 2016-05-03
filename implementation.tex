@@ -4,7 +4,7 @@
 \section{Broker Implementation}
 \label{sec:Broker Implementation}
 
-A system-block diagram, showing the interactions between the various gamq
+A system-block diagram, showing the interactions between the various \gls{gamq}
 submodules, can be seen in Figure~\ref{fig:systemBlockDiagram}.
 
 \subsection{Connection Manager}
@@ -15,14 +15,14 @@ main functions, accepting incoming connections, and parsing incoming arguments
 in compliance with the protocol (Section~\ref{sec:protocol}).
 
 The acceptance of incoming connections requires the specifics of each protocol
-(\gls{tcp}/\gls{udp}/\gls{http} etc.) to be abstracted away using a standard
+(\gls{tcp}, \gls{udp}, \gls{http} etc.) to be abstracted away using a standard
 interface through which messages can be sent to clients, the 'writer' interface
 in this case. An example of the UDP writer interface can be seen in
 Appendix~\ref{appendix:udpWriter}. Once connected, each client is serviced by a
-separate GoRoutine in an \emph{Event Loop}-style pattern - the main Connection
-Manager thread performs the minimal amount of work necessary before farming a
-client out to a background thread, in order to prevent one connecting client
-from blocking another.
+separate \gls{goroutine} in an \emph{Event Loop}-style pattern - the main
+Connection Manager thread performs the minimal amount of work necessary before
+farming a client out to a background \gls{goroutine}, in order to prevent one
+connecting client from blocking another.
 
 The parsing of each client message is simply a matter of tokenisation and
 pattern matching, as seen in Appendix~\ref{appendix:parseClientCommand}. The
@@ -38,7 +38,7 @@ the protocol parsing logic, as explored in Section~\ref{sub:performance}.
 In the event that, for whatever reason, a client is not ready to accept a
 message when it arrives - this message must be buffered up in a datastructure of
 some kind, until delivery is possible. There are a number of different
-datastructures that could be used - each with its own pros and cons. \\
+datastructures that could be used - each with their own pros and cons. \\
 
 As mentioned in Section~\ref{sub:pubsub}, message brokers typically support a
 number of different delivery patterns, the two most common of which are Queues
@@ -92,19 +92,20 @@ However, there are several disadvantages of this approach, for both the enqueue 
   \item[\textit{enqueue(m)}] \hfill \\
     Arrays in GoLang have a fixed length - but there is no limit on the number
     of messages a queue may be asked to buffer. We can compensate for this by
-    using 'slices' instead of arrays\todo{Explain slices - separate section} -
-    which are expandable using the \mintinline{go}{append()} command
-    (Listing~\ref{lst:golangAppendToSlice}). The message $m$ is stored into the
-    first available array index, which will typically complete in $O(1)$ time.
-    However, in order to create the illusion of an 'expandable' array, slices
-    use a fixed-length array under the hood - which is expanded when full. This
-    expansion involves creating a new array, which is twice the size of the
-    original. Each message in the underlying array is then copied to the new
-    array, which is used for all slice actions going forward. Therefore, whilst
-    the vast majority of messages will be stored in $O(1)$ time, a message that
-    triggers an expansion of the underlying array will require $O(n)$ time to
-    store (where $n$ is the number of messages in the queue)\todo{Improve
-    notation}.
+    using
+    'slices'\footnote{\url{https://blog.golang.org/go-slices-usage-and-internals}}
+    instead of arrays - which are expandable using the \mintinline{go}{append()}
+    command (Listing~\ref{lst:golangAppendToSlice}). The message $m$ is stored
+    into the first available array index, which will typically complete in
+    $O(1)$ time. However, in order to create the illusion of an 'expandable'
+    array, slices use a fixed-length array under the hood - which is expanded
+    when full. This expansion involves creating a new array, which is twice the
+    size of the original. Each message in the underlying array is then copied to
+    the new array, which is used for all slice actions going forward. Therefore,
+    whilst the vast majority of messages will be stored in $O(1)$ time, a
+    message that triggers an expansion of the underlying array will require
+    $O(n)$ time to store (where $n$ is the number of messages in the
+    queue).
   \item[\textit{dequeue()}] \hfill \\
     Pulling the first message in the array requires that the array be shuffled
     after each \mintinline{go}{dequeue()} operation, so that the next message to
@@ -113,7 +114,7 @@ However, there are several disadvantages of this approach, for both the enqueue 
     extremely inefficient, requiring $n - 1$ items to moved down an array
     position. However, because a slice is simply a 'view' onto an array, this
     operation can be made extremely efficient - by simply creating a new slice,
-    with all but the first element in common with the original.\todo{Diagram?}
+    with all but the first element in common with the original.
     It is therefore possible to complete this operation in $O(1)$ time.
 \end{description}
 
@@ -179,6 +180,7 @@ that we require $O(n)$ memory to store $n$ messages.
 A full implementation of a linked list queue can be found in
 Appendix~\ref{appendix:queueCode}.
 
+
 When it comes to representing topics, the situation is similar. As mentioned in
 Section~\ref{sub:topics}, the main difference between queues and topics, is the
 fact that queues deliver each message to a single consumer, whereas topics
@@ -188,8 +190,7 @@ rates. If we use an array-based datastructure, similar to that in
 Figure~\ref{fig:tikz:queueArray}, we would be required to maintain a separate
 queue for each subscriber to read from - as shown in
 Figure~\ref{fig:tikz:arrayTopic}. A topic with $s$ subscribers, and $n$ pending
-messages would therefore require at \emph{least} $O(n * s)$ memory, and that is
-without considering the caveats described above\todo{??}. \\
+messages would therefore require at \emph{least} $O(n * s)$ memory.
 
 \begin{figure}[H]
   \centering
@@ -230,13 +231,13 @@ above, as seen in Figure~\ref{fig:tikz:implementationSpaceComplexityGraph}.
 \subsection{Message Shipper}
 \label{sub:Message Shipper}
 
-The Message Shipper is responsible for pulling messages off an internal gamq
-queue/topic (Section~\ref{sub:messageStorage}), and sending them to consumers.
-Thanks to the blocking characteristic of GoChannels
+The Message Shipper is responsible for pulling messages off an internal
+\gls{gamq} queue/topic (Section~\ref{sub:messageStorage}), and sending them to
+consumers. Thanks to the blocking characteristic of GoChannels
 (Section~\ref{sub:golangConcurrency}), this is as simple as listening to the
-GoChannel attached to the subscribers queue/topic, encoding messages as they are
-pulled off the queue and sending the bytes to the 'writer' object created by
-the Connection Manager (Section~\ref{sub:connectionManager}) - as seen in
+\gls{gochannel} attached to the subscribers queue/topic, encoding messages as they are
+pulled off the queue and sending the bytes to the 'writer' object created by the
+Connection Manager (Section~\ref{sub:connectionManager}) - as seen in
 Appendix~\ref{appendix:sendMessagesToClient}.
 
 \subsection{Metrics Manager}
@@ -246,19 +247,21 @@ As shown in Figure~\ref{fig:systemBlockDiagram}, all other blocks in the system
 produce performance metrics, to be formatted as StatsD
 (Section~\ref{sub:StatsD}) messages, for graphing and visualisation. These
 metrics are aggregated by the Metrics Manager, before being sent to InfluxDB
-(Section~\ref{sub:InfluxDB}). Whilst important, sending metrics should never
-impact the performance of the broker itself - so the metrics manager uses a
-'\emph{buffered GoChannel}'\cite{channelsInGo}. Unlike a normal GoChannel,
+(Section~\ref{sub:InfluxDB}). Whilst metrics are important, sending them should
+never impact the performance of the broker itself - so the metrics manager uses
+a '\emph{buffered GoChannel}'\cite{channelsInGo}. Unlike a normal GoChannel,
 putting a message on a buffered channel will not block in the event that the
-GoRoutine on the other end is not currently listening\footnote{Assuming the
+\gls{goroutine} on the other end is not currently listening\footnote{Assuming the
 buffer is not full}. Once the Metrics Manager has received a metric from the
 channel, it adds the value to a local buffer - which it flushes once a second,
 formatting all buffered metrics as lightweight StatsD UDP packets
-(Section~\ref{sub:StatsD}) - which it sends to the configured StatsD network
-address (Section\ref{sec:Configuration}).
+(Section~\ref{sub:StatsD}) - which are then sent to the configured StatsD
+network address (Section~\ref{sec:Configuration}).
 
 \section{Presentation Interface}
 \label{sec:presentationInterface}
+
+The presentation interface consists of the following components.
 
 \subsection{StatsD}
 \label{sub:StatsD}
@@ -292,14 +295,14 @@ can contain multiple metrics, separated with newline characters
 (Listing~\ref{lst:statsdMultiplePackets}), which can greatly improve the
 efficiency of the transfer, as the size of each metric (the order of a few
 bytes) is far below the maximum capacity of a single packet - whilst the typical
-\gls{mtu} of Ethernet networks is ~1500 bytes\cite{rfc1191}. Gamq uses the UDP
-protocol by default (although this is configurable, see
+\gls{mtu} of Ethernet networks is ~1500 bytes\cite{rfc1191}. \gls{gamq} uses the
+\gls{udp} protocol by default (although this is configurable, see
 Section~\ref{sec:Configuration} for details), as the cost of sending UDP packets
 is very low cost when compared to TCP, and we do not require the deliverability
 guarantees of TCP (metrics are non-critical). Metrics are typically sent over a
-\gls{lan}, where packet loss is usually quite low. In the event that is it not,
-but the packet loss is uniform, the loss of some metrics should not affect the
-overall trend of the data too adversely.
+\gls{lan}, where packet loss is usually quite low. In the event that packet loss
+exists, but is relatively uniform, the loss of some metrics should not affect
+the overall trend of the data too adversely.
 
 \begin{listing}
   \centering
@@ -326,7 +329,7 @@ Graphite/Carbon).
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{figures/grafanaMidBenchmark}
-  \caption{A screenshot of the Grafana visualisation tool}
+  \caption{A screenshot of \gls{gamq} metrics viewed in the Grafana visualisation tool}
   \label{fig:grafanaMidBenchmark}
 \end{figure}
 
@@ -342,7 +345,7 @@ InfluxDB.
 \subsection{Docker}
 \label{sub:dockerDesign}
 
-As mentioned in Section~\ref{sub:StatsD}, gamq is designed to send StatsD
+As mentioned in Section~\ref{sub:StatsD}, \gls{gamq} is designed to send StatsD
 messages (Section~\ref{sub:StatsD}) across the network. In a production
 environment, these would be sent to the above software stack, running on a
 separate server in the datacenter. In a development environment, the metrics
@@ -351,5 +354,5 @@ configured monitoring stack should therefore be as portable as possible, to make
 development as simple as possible. \href{https://www.docker.com/}{Docker} allows
 environments to be defined in code, and built into container images - which can
 be run in a manner similar to that of a lightweight virtual machine. The Docker
-container gamq sends metrics to is available
+container \gls{gamq} sends metrics to is available
 \href{https://github.com/FireEater64/docker-statsd-influxdb-grafana}{on Github}.

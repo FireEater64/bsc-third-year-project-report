@@ -48,14 +48,15 @@ third-party libraries have been written to improve the experience of testing
 asynchronous code (Section~\ref{sub:concurrencyparallelism}). Blocks of code
 which use GoRoutines/GoChannels (Section~\ref{sub:golangConcurrency}) will
 behave in a non-deterministic manner, which can make testing them challenging.
-For example, a block of code that receives a value sent by another GoRoutine,
-has no knowledge of when the value will be received - as the GoRoutine it
+For example, a block of code that receives a value sent by another \gls{goroutine},
+has no knowledge of when the value will be received - as the \gls{goroutine} it
 receives the value from is non-deterministically scheduled by the runtime.
 Therefore, when testing asynchronous code, an assertion that a particular
 parameter has been set correctly must take place after the thread that sets the
 value of said parameter has written it. A naive method of achieving this, would
 be to simply wait a certain length of time after starting the value-setting
-thread - and \emph{hope}. An example of this strategy can be seen in
+thread - and \emph{hope} that the value is set when we come to make our
+assertion. An example of this strategy can be seen in
 Listing~\ref{lst:asyncSleepTest}.
 
 \begin{listing}[H]
@@ -86,7 +87,8 @@ lead to test suites that take un-necessarily long to run. On average, it may
 only take 0.5 seconds for \mintinline{go}{methodThatSetsValue()} to complete -
 meaning that this test wastes 4.5 seconds, holding up the execution of other
 tests whilst doing so. In a sufficiently large code-base, this can lead to test
-suits that take hours to run, and which are run less frequently as a result.
+suits that take hours to run, and which are run less frequently as a result -
+which reduces development agility.
 
 Second, and more seriously - the thread that sets
 \mintinline{go}{valueWillBeWrittenHere} may be scheduled to run after 5.5
@@ -100,8 +102,10 @@ A much better method of asynchronous testing is provided by the
 \href{https://github.com/onsi/gomega}{\emph{gomega}} testing package - which
 provides methods to regularly poll the values of variables, terminating either
 after the pass criteria has been met, or a configurable timeout has been
-exceeded. An example of using Gomega to test asynchronous code, can be seen in
-Listing~\ref{lst:asyncGomegaTest}.
+exceeded. Because the variable is polled at regular intervals (by default, every
+10msec), the test will pass 10msec after the variable has been set to the
+correct value (in the worst case). An example of using Gomega to test
+asynchronous code, can be seen in Listing~\ref{lst:asyncGomegaTest}.
 
 \begin{listing}[H]
   \centering
@@ -155,13 +159,12 @@ func BenchmarkMessageQueue_Push(t *testing.B) {
 \end{listing}
 
 For example, Listing~\ref{lst:goBenchmark} shows a benchmark function to
-evaluate the execution time of the \mintinline{Go}{Push()} function for my
+evaluate the execution time of the \mintinline{Go}{Push()} function for the \gls{gamq}
 MessageQueue implementation. When run as part of the \gls{ci} build, the
 following output (Listing~\ref{lst:goBenchmarkOutput}) is given for each
-benchmark. These results can then be compared across run, with the (still to be
-implemented) option of failing the build in the event that a major increase in
+benchmark. These results can then be compared across run, with the option of failing the build in the event that a major increase in
 average execution time for certain methods is detected, when compared to the
-previous build (in a similar) manner to my code coverage metrics.
+previous build (i.e there has been a performance regression).
 
 \begin{listing}
   \centering
@@ -189,12 +192,12 @@ BenchmarkMessageQueue_Push-2 # Benchmark Name
 Despite the initial plan being to set up and self-host most of the \gls{ci}
 infrastructure, it became clear after an initial trial that it would be far
 easier for to ensure build repeatability/speed if a cloud-based CI service was
-used (some of the reasons for which are detailed below). The popular and
-excellent \href{https://travis-ci.org/}{Travis CI} was selected - which provides
-a free tier for open-source projects like gamq. Setup was as simple as adding a
-`.travis.yml` file to the project, and enabling the gamq GitHub repo for builds
-on the Travis CI admin panel. The initial .travis.yml file can be seen in
-Listing~\ref{lst:initialTravis}, and the latest version is available
+used. The popular and excellent \href{https://travis-ci.org/}{Travis CI} was
+selected - which provides a free tier for open-source projects like gamq. Setup
+was as simple as adding a `.travis.yml` file to the project, and enabling the
+gamq GitHub repo for builds on the Travis CI admin panel. The initial
+.travis.yml file can be seen in Listing~\ref{lst:initialTravis}, and the latest
+version is available
 \href{https://github.com/FireEater64/gamq/blob/master/.travis.yml}{on GitHub}.
 There are a multitude of configurable options available\footnote{More
 information on the contents of .travis.yml files can be found in their
@@ -262,29 +265,28 @@ tests is \emph{code coverage}, which is the total percentage of the code-base
 that is executed when running unit tests. This is a useful metric to keep an eye
 on, as it helps\footnote{Though doesn't always} indicate which sections of code
 are susceptible to bugs as a result of not being tested. Go's built in test
-runner is capable of producing code coverage reports during test runs, however I
-chose to use an open source tool called
-'\href{https://github.com/axw/gocov}{gocov}', as it allowed me to send the code
-quality metrics produced my build to another online service,
+runner is capable of producing code coverage reports during test runs, however
+the decision was taken to use an open source tool called
+'\href{https://github.com/axw/gocov}{gocov}', as it allows the code
+quality metrics produced by the build to be sent to another online service,
 \href{https://coveralls.io/}{coveralls}. The reasons behind doing this, rather
 than relying on the build-in HTML report were:
-
 \begin{description}
-  \item[Visibility] Publishing my code quality metrics in an easily accessibly,
+  \item[Visibility] Publishing code quality metrics in an easily accessibly,
   publicly visible website (as well as the front page of my GitHub project),
-  rather than hiding them away in build logs helps to 'keep me honest', as well
+  rather than hiding them away in build logs helps to 'keep developers honest', as well
   as '\textit{\gls{gamify}}' the process of driving up coverage.
-  \item[Monitoring] Coveralls allows me to set 'thresholds' for coverage
-  metrics, and will fail the build if these are not adhered to. For example, my
+  \item[Monitoring] Coveralls can set 'thresholds' for coverage
+  metrics, and will fail the build if these are not adhered to. For example, the \gls{gamq}
   build will fail if the coverage of the checked in code is even 0.1\% less than
   that of the previous successful build.
 \end{description}
 
-The code quality metrics for my project are available
+The code quality metrics for \gls{gamq} are available
 \href{https://coveralls.io/github/FireEater64/gamq?branch=master}{on Coveralls},
 as well as being summarised in the
-\href{https://github.com/FireEater64/gamq/blob/master/README.md}{README for my
-project on GitHub}\(Figure~\ref{fig:readmeStatus} \).
+\href{https://github.com/FireEater64/gamq/blob/master/README.md}{README for
+\gls{gamq} on GitHub} (Figure~\ref{fig:readmeStatus}).
 
 \begin{figure}
   \includegraphics[width=0.8\textwidth]{figures/README}
@@ -317,11 +319,11 @@ production as closely as possible, warts and all.
 \end{figure}
 
 Using the built in real-time performance metrics tools discussed in
-Section~\ref{sec:presentationInterface}, and the python benchmarking code listed
+Section~\ref{sec:presentationInterface}, and a set of Python benchmarks, like the one listed
 in Appendix~\ref{appendix:benchmarkCode} - rough performance figures for gamq could
 be measures. The Network Link Conditioning Tool
 (Figure~\ref{fig:linkConditioner}) was also used to simulate suboptimal
-networking conditions (latency, packet loss etc.), to validate the operation of
+networking conditions (latency, packet loss etc.) in a reproducable fashion, to validate the operation of
 the broker in less-than-ideal environments. Gamq can also produce performance
 profile information in the standardised 'pprof' format using a command line flag
 (Section~\ref{sub:Command-line configuration}), which can be visualised to
@@ -331,7 +333,7 @@ function. An example graph can be seen in Appendix~\ref{appendix:profileResults}
 \section{System Performance}
 \label{sec:systemPerformance}
 
-Nominal performance of the broker using TCP messages without acknowledgement
+Nominal performance of \gls{gamq} using TCP messages without acknowledgement
 messages, was around 15,000 messages/second on a second-generation Intel Core
 i7. UDP messages produced roughly double this figure - 30,000 messages per
 second, but also produced a very large number of lost messages, due to the lack

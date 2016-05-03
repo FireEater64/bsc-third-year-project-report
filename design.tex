@@ -54,7 +54,7 @@ suitable in most cases, since no other 'well-known' applications use that
 particular
 port\footnote{\url{https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers}} -
 there may be certain environments where it is necessary to change it. This can
-be achieved by editing the relevant gamq configuration.
+be achieved by editing the relevant \gls{gamq} configuration.
 
 \subsection{Command-line configuration}
 \label{sub:Command-line configuration}
@@ -152,12 +152,12 @@ essential to allow other networked applications to interact with the messaging
 broker. Although a simple protocol is used in the current implementation, the
 message decoding logic is designed to be somewhat modular, allowing for
 additional protocols to easily be supported. The NATS message
-protocol\cite{natsProtocol} served as an inspiration for gamq - as it showed it
+protocol\cite{natsProtocol} served as an inspiration for \gls{gamq} - as it showed it
 was possible for text-based protocols to be as performant as customised binary
 protocols, and had a slew of other benefits, such as human-readability, and ease
 of debugging.
 
-The gamq protocol defines several commands, which can be seen in
+The \gls{gamq} protocol defines several commands, which can be seen in
 Table~\ref{tab:protocol}. These commands are all delimited by \verb|\r\n|, which
 is the telnet standard. The two most frequently used commands (\emph{PUB} and
 \emph{SUB}) are intentionally short to reduce the overhead required to send them
@@ -169,7 +169,7 @@ send messages to the broker (An example of which can be seen in
 
 \begin{table}[H]
 \centering
-\caption{The gamq protocol commands}
+\caption{The \gls{gamq} protocol commands}
 \label{tab:protocol}
 \begin{tabular}{|l|}
 \hline
@@ -190,7 +190,7 @@ Command \\ \hline
   \centering
   \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
   \inputminted{bash}{code/gamqHelpOutputTelnet}
-  \caption{Output from the gamq HELP command}
+  \caption{Output from the \gls{gamq} HELP command}
   \label{lst:gamqHelpTelnet}
 \end{listing}
 
@@ -255,7 +255,7 @@ messages. Clients should send this at regular intervals.
 
 Unsubscribe from all subscribed queues, and close the connection to the broker.
 Whilst the client can achieve the same effect by simply closing its side of a
-TCP connection\todo{\gls{tcp}/\gls{udp} section}, since \gls{udp} is a connectionless protocol, it
+TCP connection, since \gls{udp} is a connectionless protocol, it
 requires an explicit disconnect message (as in
 Listing~\ref{lst:gamqDisconnectTelnet})
 
@@ -277,4 +277,4 @@ lost message if at-least-once semantics (Section~\ref{sub:failureHandling}) are
 required. Explicitly acknowledging messages (as opposed to relying on built in
 \gls{tcp} error correction) can have a significant overhead, but can also
 dramatically reduce the number of lost messages when using a protocol with no
-built-in error correction(\gls{udp}).
+built-in error correction (\gls{udp}).

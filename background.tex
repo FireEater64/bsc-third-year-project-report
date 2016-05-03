@@ -29,14 +29,14 @@ benefits brokered message passing provides (Section~\ref{sec:brokers}).
 \end{figure}
 
 To understand the role message brokers typically play in \glspl{soa}, we first
-examine the simplest method of transmitting bytes between two applications -
+examine the simplest method of sending messages between two applications -
 directly transmitting messages between two applications (shown in
 Figure~\ref{fig:tikz:directMessaging}).
 
 In this example, the application 'A' wishes to transmit a simple message
 (Section~\ref{sec:messages}) to application 'B', and does so in the simplest
 method possible. This could involve making an \gls{rpc}, opening a
-Unix/\gls{tcp} socket, or making a HTTP web request. For the purposes of this
+\gls{tcp} socket, or making a \gls{http} web request. For the purposes of this
 illustration the exact mechanism by which bytes are transferred is unimportant,
 the fact that the transfer takes place \emph{directly} between the two parties
 is all that matters.
@@ -49,44 +49,46 @@ is all that matters.
 \end{figure}
 
 This is a perfectly acceptable method of exchanging information between two
-services at a small scale. However (and perhaps unfortunately), systems rarely
-exist in pairs. One of the biggest issues with simple application-to-application
-messaging is demonstrated in Figure~\ref{fig:tikz:complexDirectMessaging} - as
-more nodes are added, the complexity of using direct connections increases
-exponentially (requiring $n^2 - n$ connections, where $n$ is the number of
-services)\footnote{Assuming each service needs to talk to all other services}.
-Managing this complexity is difficult in a number of ways:
+services at a small scale. However, systems rarely exist in pairs. One of the
+biggest issues with simple application-to-application messaging is demonstrated
+in Figure~\ref{fig:tikz:complexDirectMessaging} - as more nodes are added, the
+complexity of using direct connections increases exponentially (requiring $n^2 -
+n$ connections, where $n$ is the number of services)\footnote{Assuming each
+service needs to talk to all other services}. Managing this complexity is
+difficult in a number of ways:
 
 \begin{description}
-  \item[Service discovery] \hfill \\ Firstly, each program requires some
-  mechanism of discovering an endpoint for all the other services it wishes to
-  communicate with. Typically, this is either provided via configuration shipped
-  with the program, or is available from some central repository\footnote{Such
-  as \href{https://zookeeper.apache.org/}{Apache Zookeeper}}. There are also,
-  however, problems involved with keeping this information up to date - as the
-  services with which a client machine communicates may not always be available
-  on the same endpoints all of the time (Possibly due to dynamic network
-  configuration via DHCP, or the migration of a service between servers).
+  \item[Service discovery] \hfill \\
+  Firstly, each program requires some mechanism of discovering an endpoint for
+  all the other services it wishes to communicate with. Typically, this is
+  either provided via configuration shipped with the program, or is available
+  from some central repository\footnote{Such as
+  \href{https://zookeeper.apache.org/}{Apache Zookeeper}}. There are often
+  problems involved with keeping this information up to date - as the services
+  with which a client machine communicates may not always be available on the
+  same endpoints all of the time (Possibly due to dynamic network configuration
+  via DHCP, or the migration of a service between servers).
   \item[Number of connections] \hfill \\
   As the number of services a program communicates with increases, so do the
   number of connections said program is required to maintain. This could be a
-  non-issue if a connectionless protocol such as UDP (which has the distinct
-  disadvantage of not having any deliverability guarantees). However, if a
-  connection-oriented protocol such as TCP is used, there can be significant
-  overhead associated with maintaining large numbers of
+  non-issue if a connectionless protocol such as \gls{udp} is used (which has
+  the distinct disadvantage of not having any deliverability guarantees).
+  However, if a connection-oriented protocol such as TCP is used, there can be
+  significant overhead associated with maintaining large numbers of
   connections\footnote{Although this is less of a problem with modern hardware:
   \url{http://c10m.robertgraham.com/p/manifesto.html}}
-  \item[Readiness to receive] \hfill \\ When a service sends a message across
-  the network, the assumption is that the recipient of the message is ready to
-  receive it.  This is not always the case, however. The recipient may be
-  performing some other task when the message is sent - or may even be busy
-  processing the previous message it received. There are several programming
-  techniques which can be employed to reduce the possibility of lost messages -
-  relying on  the built-in congestion-control protocols, such as those present
-  in \gls{tcp}\cite{rfc2581}, and writing multithreaded or asynchronous
-  (Section~\ref{sub:concurrencyparallelism}) code. However, more often than not,
-  application developers end up having to write code to handle communicating
-  with services that are (for whatever reason) unavailable.
+  \item[Readiness to receive] \hfill \\
+  When a service sends a message across the network, the assumption is that the
+  recipient of the message is ready to receive it.  This is not always the case,
+  however. The recipient may be performing some other task when the message is
+  sent - or may even be busy processing the previous message it received. There
+  are several programming techniques which can be employed to reduce the
+  possibility of lost messages - relying on built-in congestion-control
+  protocols, such as those present in \gls{tcp}\cite{rfc2581}, and writing
+  multithreaded or asynchronous (Section~\ref{sub:concurrencyparallelism}) code.
+  However, more often than not, application developers end up having to write
+  code to handle communicating with services that are (for whatever reason)
+  unavailable.
 \end{description}
 
 \begin{figure}[htbp]
@@ -99,18 +101,18 @@ Managing this complexity is difficult in a number of ways:
 Message brokers offer a layer of abstraction to developers wishing to exchange
 messages between services. Rather than contacting the service directly, messages
 are relayed via the broker (Figure~\ref{fig:tikz:messageBroker}). This not only
-reduced the number of connections required for application to exchange messages
+reduces the number of connections required for application to exchange messages
 (Figure~\ref{fig:tikz:complexBrokerMessaging}), but also simplifies service
 discovery. Each service need only know the connection details for the message
 broker, and the name of the queue/topic (Sections \ref{sub:queues} and
 \ref{sub:topics}) to send/receive messages on. The locations of the services
 sending/receiving messages through the broker no long matters - which removes
 the need for complex service discovery protocols. Additionally, by decoupling
-the sending and receiving of messages (Section~\ref{sub:pubsub}) brokers can act
-as a buffer between communicating processes, preventing the receiving process
-from becoming swamped by incoming messages (\gls{dos}), or losing messages in
-the event of an application crash - in both cases, messages simply buffer up on
-the message broker, until the receiving application is ready to consume them.
+the sending and receiving of messages, brokers can act as a buffer between
+communicating processes, preventing the receiving process from becoming swamped
+by incoming messages (\gls{dos}), or losing messages in the event of an
+application crash - in both cases, messages simply buffer up on the message
+broker, until the receiving application is ready to consume them.
 
 \begin{figure}[htbp]
   \centering
@@ -144,10 +146,10 @@ handle message routing for an entire datacenter, with relatively little
 complexity. These advantages are explored in detail in
 Section~\ref{sec:brokers}. The disadvantages of the pub/sub model are associated
 with its loose coupling - the model itself does not define a message format,
-leaving the creation and updating of message contracts to the application
+leaving the creating and updating of message contracts to the application
 developer.\footnote{Although, as discussed in Section~\ref{sec:messages}, this
-can also be an advantage, as it allows application developers to freely define
-the format of their messages}.
+can also be an advantage, as it allows absolute freedom for application
+developers to freely define the format of their messages}.
 
 \subsection{Queues}
 \label{sub:queues}
@@ -161,22 +163,22 @@ have multiple publishers, and multiple subscribers
 (Figure~\ref{fig:tikz:queuesInsideBroker}). In the event of a queue having
 multiple subscribers, each message is delivered to a single subscriber. The
 order in which messages are distributed amongst subscribers is typically a
-'round-robin' pattern\footnote{Although other variants also exists} - that is to
+'round-robin' pattern\footnote{Although this is often configurable} - that is to
 say, the next subscriber to receive a message will be the one who is ready to
 receive a message, that has received a message \emph{least recently}.
 
 A typical use of a Message Queue may be the distribution of job information,
 where messages consist of configuration for jobs, and worker applications
 subscribe to the queue this job information is posted on. Say an application
-developer has a large set of images he wishes to crop to a certain size. These
-images are posted onto a message queue, which a number of servers subscribe to.
-Each server receives a image off the queue, crops it, and saves it to a
-fileserver - before receiving the next image. Each image is only ever received
-by a single worker. This is a scalable solution, as the rate at which images are
-processed increases with the number of servers subscribed to the queue (up to a
-point). In the event that a worker fails mid-way through processing an image,
-the broker may decide to redeliver the message to another subscriber, depending
-on how it was configured (Section~\ref{sec:requirements}).
+developer has a large set of images he/she wishes to crop to a certain size.
+These images are posted onto a message queue, which a number of servers
+subscribe to. Each server receives a image off the queue, crops it, and saves it
+to a fileserver - before receiving the next image. Each image is only ever
+received by a single worker. This is a scalable solution, as the rate at which
+images are processed increases with the number of servers subscribed to the
+queue (up to a point). In the event that a worker fails mid-way through
+processing an image, the broker may decide to redeliver the message to another
+subscriber, depending on how it was configured (Section~\ref{sec:requirements}).
 
 \subsection{Topics}
 \label{sub:topics}
@@ -331,17 +333,16 @@ One of the founding principals of Go was simplicity, and ease of
 maintainability\cite{lessIsExponentiallyMore} - even at the expense of
 performance in some areas\footnote{Although GoLang does perform well in
 benchmarks, due to its compiled nature\cite{benchmarksGame}}. As such, Go has a
-relatively light core feature-set compared with most other
-'\emph{network-oriented languages}', such as Java, .NET, Python and Ruby. Go
-also contains creature comforts not found in performance-oriented languages like
-C++, such as \gls{gc} - something which has typically been the sole preserve of
-languages with an interpreted runtime, such as Java, Ruby and Python. However,
-due to its nature as a compiled language, Go still outperforms these
-'traditional languages' in a number of standard benchmarks\cite{benchmarksGame}
-which, combined with the built-in '\emph{CSP-style}'\cite{hoareCAR} concurrency
-features (Section~\ref{sub:golangConcurrency}) make Go an extremely compelling
-language for developing networked infrastructure software, such as a message
-broker.
+relatively light core feature-set compared with other '\emph{network-oriented
+languages}', such as Java, .NET, Python and Ruby. Go also contains creature
+comforts not found in performance-oriented languages like C++, such as \gls{gc} -
+something which has typically been the sole preserve of languages with an
+interpreted runtime, such as Java, Ruby and Python. However, due to its nature
+as a compiled language, Go still outperforms these 'traditional languages' in a
+number of standard benchmarks\cite{benchmarksGame} which, combined with the
+built-in '\emph{CSP-style}'\cite{hoareCAR} concurrency features
+(Section~\ref{sub:golangConcurrency}) make Go an extremely compelling language
+for developing networked infrastructure software, such as a message broker.
 
 \subsection{Concurrency vs Parallelism}
 \label{sub:concurrencyparallelism}
@@ -409,7 +410,7 @@ Now we can look at the effect of simple \textbf{parallelism} on the tournament
 time. Assuming we return to the sequential tournament method, but invite a
 second professional player to the match. The effects of this are rather
 obviously - playing two games at once will half the time taken to complete all
-games, which will now take 55 minutes to carry out. $$101/2 \approx 55$$
+games, which will now take 50 minutes to carry out. $$101/2 \approx 50$$
 However, note that we not only require twice as many 'resources' (in this case,
 professional draughts players) as before, but took \emph{longer} to complete the
 tournament than the concurrent method. \\
@@ -447,11 +448,11 @@ described in Section~\ref{sub:concurrencyparallelism}). The main two language fe
 \paragraph{Goroutines}
 
 Goroutines are, as mentioned above, concurrently executing functions - often
-described as 'lightweight threads' by the languages creators\todo{Citation}.
-Because they are managed by the Go runtime, Goroutines can be \gls{preempted} by
-the Go runtime, as described in \ref{sub:whyConcurrency}. This means that,
-Goroutines never block whilst waiting for IO - which is extremely important in
-networked environments (such as a messaging broker).
+described as 'lightweight threads' by the languages creators. Because they are
+managed by the Go runtime, Goroutines can be \gls{preempted} by the Go runtime,
+as described in \ref{sub:whyConcurrency}. This means that, Goroutines never
+block whilst waiting for IO - which is extremely important in networked
+environments (such as a messaging broker).
 
 \paragraph{GoChannels}
 
@@ -473,15 +474,15 @@ two GoRoutines.
 \label{sub:whyConcurrency}
 
 A message broker operates in, what is an inherently parallel environment. As
-shown in Figure~\ref{fig:tikz:complexBrokerMessaging}, a broker is expected to
-hold a great many 'conversations' with clients at any one moment in time. These
+shown in Figure~\ref{fig:tikz:queuesInsideBroker}, a broker is expected to hold
+a great many 'conversations' with clients at any one moment in time. These
 clients will be sending new messages, expecting to receive published messages,
 creating/deleting queues and topics - all at the same time. As mentioned in
 Section~\ref{sec:requirements}, these client requests need to be serviced in a
 timely manner. Whilst a sequential approach to designing a broker may well work
 in simple environments, this approach simply does not scale to the levels of
-enterprise message brokers, which deal with thousands of message per second,
-serving hundreds of clients.
+enterprise message brokers, which deal with hundreds of thousands of message per
+second, serving thousands of clients.
 
 One approach to dealing with this environmental parallelism, is to use
 multi-threading. In a traditional language like Java, creating a separate thread
@@ -583,9 +584,6 @@ context-aware means that it can make informed decisions about the best time to
 interrupt a currently running thread, whereas the system scheduler will preempt
 a running thread at any time (which might be midway through a calculation). This
 also means that Go can intelligently choose which registers are in use by the
-running Goroutine, and need to be saved as part of the context-switch, whereas
-the \gls{os} scheduler will typically blindly save all registers\todo{Cite}.
-
-\todo[inline]{Message broker functions - blocking vs non-blocking IO}
-
-\todo[inline]{GoRoutines/Channels etc.}
+running Goroutine, and need to be saved as part of the context-switch, and
+achieve faster context switches as a result (by comparison, the \gls{os}
+scheduler will typically blindly save all registers during a context switch).
