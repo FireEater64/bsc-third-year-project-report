@@ -5,17 +5,16 @@
 \label{sec:background}
 
 Many large, distributed applications (particularly in 'enterprise' environments)
-make extensive use of messaging brokers - software\footnote{Or hardware in some
-cases\cite{solaceappliances}} responsible for passing messages at
+make extensive use of messaging brokers - software (or
+hardware\cite{solaceappliances}) responsible for passing messages at
 layer-7\footnote{\url{https://support.microsoft.com/en-us/kb/103884}} between
 services, over the network. Two examples of such software are
 \href{http://www.tibco.com/products/automation/enterprise-messaging/enterprise-message-service}{TibcoEMS}
-and \href{https://www.rabbitmq.com/}{RabbitMQ}. These brokers improve the
-software development experience for engineers working on distributed
-applications, by abstracting away the complexities involved with passing
-messages between software running on distributed, heterogeneous hardware - which
-may be separated by networks operated by multiple different administrators, and
-with less-than-perfect
+and \href{https://www.rabbitmq.com/}{RabbitMQ}. Brokers improve the software
+development experience for engineers working on distributed applications, by
+abstracting away complexities involved with passing messages between software
+running on distributed, heterogeneous hardware - which may be separated by
+networks operated by multiple different administrators, and with suboptimal
 qualities.\footnote{\url{https://blogs.oracle.com/jag/resource/Fallacies.html}}.
 These broker benefits are explored in-depth in Section~\ref{sec:brokers}.
 

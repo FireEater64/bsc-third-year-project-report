@@ -60,11 +60,19 @@ Listing~\ref{lst:asyncSleepTest}.
 
 \begin{listing}[H]
   \centering
+  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
   \begin{minted}{go}
-var valueWillBeWrittenHere int // We'll inspect this value
-go methodThatSetsValue(*valueWillBeWrittenHere) // Kick off the thread that sets the value
-time.Sleep(5 * time.Second) // Wait 5 seconds
-if (valueWillBeWrittenHere != expectedValue) { // Assert the variable holds the expected value
+// We'll inspect this value
+var valueWillBeWrittenHere int
+
+// Kick off the thread that sets the value
+go methodThatSetsValue(*valueWillBeWrittenHere)
+
+// Wait 5 seconds
+time.Sleep(5 * time.Second)
+
+// Assert the variable holds the expected value
+if (valueWillBeWrittenHere != expectedValue) {
   t.Fail()
 }
   \end{minted}
@@ -97,18 +105,23 @@ Listing~\ref{lst:asyncGomegaTest}.
 
 \begin{listing}[H]
   \centering
+  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
   \begin{minted}{go}
-gomega.RegisterTestingT(t) // Setup gomega
+// Setup gomega
+gomega.RegisterTestingT(t)
 
-var valueWillBeWrittenHere int // We'll inspect this value
-go methodThatSetsValue(*valueWillBeWrittenHere) // Kick off the thread that sets the value
+// We'll inspect this value
+var valueWillBeWrittenHere int
+
+// Kick off the thread that sets the value
+go methodThatSetsValue(*valueWillBeWrittenHere)
 
 // Poll the variable every POLLING_INTERVAL milliseconds
 // Terminate either when valueWillBeWrittenHere == expectedValue (test passes),
 // or after a TIMEOUT second timeout (test fails)
 gomega.Eventually(func() int {
-		return valueWillBeWrittenHere
-	}, TIMEOUT, POLLING_INTERVAL).Should(gomega.Equal(expectedValue))
+  return valueWillBeWrittenHere
+}, TIMEOUT, POLLING_INTERVAL).Should(gomega.Equal(expectedValue))
   \end{minted}
   \caption{Using gomega to test asynchronous code}
   \label{lst:asyncGomegaTest}
@@ -126,6 +139,7 @@ documentation}} to record stable execution times for critical functions.
 
 \begin{listing}
   \centering
+  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
   \begin{minted}{Go}
 func BenchmarkMessageQueue_Push(t *testing.B) {
 	underTest := NewMessageQueue()
@@ -151,6 +165,7 @@ previous build (in a similar) manner to my code coverage metrics.
 
 \begin{listing}
   \centering
+  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
   \begin{minted}{Bash}
 BenchmarkMessageQueue_Push-2 # Benchmark Name
 5000000 # Number of times loop executed to get a stable average
@@ -188,6 +203,7 @@ configuration in Listing~\ref{lst:initialTravis} consisted of only three:
 
 \begin{listing}
   \centering
+  \RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}
   \begin{minted}{YAML}
 language: go
 
